@@ -1,0 +1,2641 @@
+# 1kDaily — COMPLETE PRODUCT MASTER SPECIFICATION
+
+## Save Daily. Build Capacity. Unlock Opportunity.
+
+You are acting as a senior product architect, fintech engineer, UX/UI designer, full-stack developer, database architect, security engineer, QA engineer and product strategist.
+
+Your task is to architect and develop **1kDaily**, a modern, scalable, security-conscious daily savings and credit eligibility platform designed initially for the Nigerian market.
+
+This must not be a basic savings application.
+
+1kDaily is a financial discipline, savings accumulation and structured credit eligibility platform that encourages users to save consistently over a selected period, develop a verifiable financial track record and potentially qualify for loans based on their savings history, financial capacity, risk assessment, repayment affordability and applicable collateral requirements.
+
+The product must be beautiful, intuitive, technologically sound, secure, responsive, financially auditable and commercially scalable.
+
+---
+
+# 1. PRODUCT IDENTITY
+
+## Product name
+
+1kDaily
+
+## Primary tagline
+
+Save Daily. Build Capacity. Unlock Opportunity.
+
+## Brand positioning
+
+1kDaily helps people build financial discipline through daily savings while creating a structured pathway to potential credit opportunities.
+
+The platform encourages consistency, financial responsibility, measurable progress and informed access to credit.
+
+## Target market
+
+Initially target Nigeria, including:
+
+- Salaried workers.
+- Small business owners.
+- Traders.
+- Artisans.
+- Freelancers.
+- Self-employed individuals.
+- Young professionals.
+- Students and young adults, where eligible under the applicable legal and product requirements.
+- Individuals seeking financial discipline.
+- People who may have limited access to conventional credit.
+
+Design the platform in a manner that allows future expansion to other African markets, subject to the appropriate regulatory, financial and operational requirements.
+
+## Product philosophy
+
+1kDaily should be built around five principles:
+
+1. Financial discipline.
+2. Transparency.
+3. Trust.
+4. Financial responsibility.
+5. Opportunity.
+
+Never encourage users to take loans they cannot repay.
+
+Never create misleading promises about guaranteed loans, guaranteed returns, guaranteed savings multipliers or guaranteed approval.
+
+---
+
+# 2. BRAND AND VISUAL DESIGN SYSTEM
+
+Create a distinctive, premium fintech identity for 1kDaily.
+
+The product must feel like a modern, intelligent financial platform.
+
+It should combine the sophistication of digital banking, the simplicity of savings applications and the clarity of a financial management dashboard.
+
+## Suggested brand palette
+
+Primary brand colour: Emerald Green — #16A34A
+
+Secondary green: #10B981
+
+Deep financial navy: #0B1739
+
+Accent blue: #2563EB
+
+Accent gold: #F5B942
+
+Background: #F6F8FC
+
+White: #FFFFFF
+
+Muted text: #64748B
+
+Dark text: #172033
+
+Success: #16A34A
+
+Warning: #F59E0B
+
+Danger: #DC2626
+
+Info: #0EA5E9
+
+Use the palette intelligently. Do not flood the entire interface with green.
+
+Green should communicate financial growth and positive progress. Navy should communicate stability and trust.
+
+Use subtle gradients where appropriate, restrained shadows, elegant borders, soft rounded cards, sophisticated typography and excellent spacing.
+
+## Typography
+
+Use a modern, highly readable font system.
+
+Recommended options include Inter, Manrope or Geist.
+
+Maintain consistent typography hierarchy:
+
+- Display headings.
+- Page headings.
+- Section headings.
+- Body text.
+- Supporting text.
+- Financial figures.
+- Labels.
+- Captions.
+
+Financial amounts must be exceptionally readable.
+
+## Design expectations
+
+- Premium SaaS quality.
+- Responsive design.
+- Mobile-first layouts.
+- Modern card design.
+- Beautiful charts.
+- Intelligent data visualisation.
+- Elegant tables.
+- Clean navigation.
+- Contextual tooltips.
+- Thoughtful empty states.
+- Skeleton loading states.
+- Smooth interactions.
+- Accessible colour contrast.
+- Consistent spacing.
+- Professional iconography.
+- Subtle micro-interactions.
+
+Avoid:
+
+- Clutter.
+- Excessive gradients.
+- Overcrowded cards.
+- Excessive animations.
+- Cheap-looking UI.
+- Unnecessary modal popups.
+- Generic dashboard templates.
+- Desktop-only layouts.
+- Fake financial data.
+- Decorative elements that distract from financial information.
+
+---
+
+# 3. LOGO AND BRAND ASSETS
+
+Develop a professional 1kDaily logo identity.
+
+Logo concept:
+
+A modern financial growth symbol incorporating a coin, upward movement, savings or progress, and the number or identity 1kDaily.
+
+The logo should communicate:
+
+- Savings.
+- Consistency.
+- Growth.
+- Financial opportunity.
+- Trust.
+
+Create:
+
+- Primary horizontal logo.
+- Icon-only logo.
+- Mobile icon.
+- Light-background logo.
+- Dark-background logo.
+- Monochrome logo.
+- Favicon.
+- PWA icon.
+
+Do not make the logo excessively complex.
+
+The icon must be clearly recognisable at small sizes.
+
+---
+
+# 4. APPLICATION ARCHITECTURE
+
+Build the application using a modular, scalable architecture.
+
+Preferred technology stack:
+
+- Next.js with App Router.
+- TypeScript.
+- Tailwind CSS.
+- shadcn/ui.
+- Lucide icons.
+- Motion for React for carefully controlled animations.
+- Supabase PostgreSQL.
+- Supabase Auth.
+- Supabase Storage.
+- Supabase Row Level Security.
+- React Hook Form.
+- Zod.
+- Recharts for charts.
+- Paystack integration architecture.
+- Server-side transaction verification.
+- PWA support.
+- Vercel deployment architecture or an equivalent compatible deployment platform.
+
+Use a clean separation between:
+
+- Frontend.
+- Business logic.
+- Financial services.
+- Database.
+- Authentication.
+- Payment integrations.
+- Credit assessment.
+- Notification services.
+- Administrative operations.
+
+Do not expose privileged database credentials in the browser.
+
+All sensitive financial operations must execute server-side.
+
+Use appropriate API routes, server actions or secure server-side services.
+
+Create an integration abstraction layer for payment providers and lending partners so that the platform can eventually support additional providers without rewriting core business logic.
+
+If the repository already exists, first inspect it and preserve functioning features.
+
+Do not blindly overwrite existing working code.
+
+---
+
+# 5. USER APPLICATION
+
+Build the complete user-facing application.
+
+The application must have a beautiful, intuitive dashboard and a seamless mobile experience.
+
+## A. USER ONBOARDING
+
+Create a guided onboarding experience.
+
+### Step 1: Welcome
+
+Introduce 1kDaily.
+
+Explain:
+
+- What 1kDaily does.
+- Why daily savings matter.
+- How saving consistency can help establish a financial track record.
+- How potential credit eligibility works.
+- That loan approval is not guaranteed.
+
+### Step 2: Account creation
+
+Fields:
+
+- Full name.
+- Email.
+- Phone number.
+- Password.
+- Referral code, optional.
+
+Use secure authentication and appropriate validation.
+
+Support phone and email verification as applicable to the chosen authentication architecture.
+
+### Step 3: Personal profile
+
+Collect appropriate information required for account setup and future verification.
+
+### Step 4: Identity verification
+
+Design an appropriate KYC workflow with verification levels.
+
+Possible verification requirements:
+
+- Phone verification.
+- Email verification.
+- BVN verification through an authorised integration.
+- NIN verification through an authorised integration.
+- Government-issued identity verification.
+- Address verification where required.
+
+Do not invent verification results.
+
+Do not expose identity information unnecessarily.
+
+### Step 5: Financial profile
+
+Where necessary and appropriate, collect:
+
+- Employment status.
+- Income source.
+- Monthly income range.
+- Business type.
+- Estimated monthly income.
+- Monthly financial commitments.
+- Existing debt obligations.
+- Bank account details for permitted financial operations.
+
+Collect only data necessary for the relevant product, assessment or legal requirement.
+
+### Step 6: Account dashboard
+
+Once onboarding is completed, direct the user to their dashboard.
+
+---
+
+# 6. SAVINGS PLAN ENGINE
+
+This is one of the core modules.
+
+Users should be able to create, select and manage daily savings plans.
+
+## A. PREDEFINED SAVINGS PLANS
+
+Create the following illustrative plans:
+
+### Starter Plan
+
+₦1,000 daily.
+
+### Growth Plan
+
+₦2,000 daily.
+
+### Builder Plan
+
+₦5,000 daily.
+
+### Power Plan
+
+₦10,000 daily.
+
+These plans must not be hardcoded as immutable product definitions.
+
+Allow authorised administrators to manage plan configurations.
+
+## B. CUSTOM SAVINGS PLAN
+
+Allow users to create custom plans where permitted.
+
+User may select:
+
+- Daily contribution amount.
+- Duration.
+- Start date.
+- Saving goal.
+- Preferred contribution method.
+- Reminder schedule.
+- Auto-debit preference, where supported and properly authorised.
+- Contribution flexibility.
+
+Implement appropriate minimum and maximum limits.
+
+## C. SAVINGS DURATION
+
+Initial durations:
+
+- 30 days.
+- 60 days.
+- 90 days.
+- 120 days.
+- 180 days.
+- 365 days.
+
+The administrator must be able to configure available durations.
+
+## D. SAVINGS PLAN SUMMARY
+
+Before confirming a plan, display:
+
+- Daily amount.
+- Duration.
+- Expected total contribution.
+- Start date.
+- End date.
+- Number of contribution days.
+- Withdrawal rules.
+- Grace period rules.
+- Missed contribution rules.
+- Whether the plan is flexible or fixed.
+- Applicable fees, if any.
+- Whether the plan is eligible to contribute toward loan assessment.
+- Terms and conditions.
+
+Require informed user confirmation.
+
+Do not conceal important restrictions.
+
+## E. SAVINGS PLAN STATUS
+
+Possible statuses:
+
+- Draft.
+- Pending activation.
+- Active.
+- Paused.
+- Completed.
+- Cancelled.
+- Suspended.
+
+Maintain a proper plan history.
+
+## F. SAVINGS PLAN MANAGEMENT
+
+Users should be able to:
+
+- View active plans.
+- View completed plans.
+- View paused plans.
+- View contribution history.
+- View plan progress.
+- View expected completion date.
+- View remaining days.
+- View missed contributions.
+- Request eligible withdrawals.
+- Pause or resume where permitted.
+- Create additional plans where allowed.
+
+Do not allow users to manipulate historical contribution records.
+
+---
+
+# 7. DAILY SAVINGS CONTRIBUTION ENGINE
+
+Implement a secure contribution system.
+
+## Contribution methods
+
+Design an architecture for:
+
+- Manual deposits.
+- Payment gateway deposits.
+- Bank transfers.
+- Supported recurring payments.
+- Approved payment partner integrations.
+
+Use Paystack as an initial integration candidate, subject to the appropriate operational and financial arrangement.
+
+## Contribution workflow
+
+1. User selects an active plan.
+2. User initiates a contribution.
+3. The system generates a transaction reference.
+4. Payment is initiated through the supported payment provider.
+5. The payment provider confirms the transaction.
+6. Server-side verification is performed.
+7. Duplicate transaction detection is performed.
+8. The contribution is recorded.
+9. Appropriate ledger entries are created.
+10. The savings balance is updated through the financial accounting process.
+11. The savings plan progress is updated.
+12. The user receives a confirmation notification.
+13. The transaction becomes visible in the history.
+
+Do not credit savings based solely on a frontend success response.
+
+## Contribution tracking
+
+Record:
+
+- User.
+- Savings plan.
+- Contribution amount.
+- Transaction reference.
+- Payment provider.
+- Provider transaction identifier.
+- Payment status.
+- Timestamp.
+- Reconciliation status.
+- Ledger references.
+
+## Contribution statuses
+
+- Initiated.
+- Pending.
+- Confirmed.
+- Failed.
+- Reversed.
+- Refunded.
+
+Do not treat failed or pending transactions as confirmed savings.
+
+---
+
+# 8. SAVINGS DISCIPLINE AND ENGAGEMENT ENGINE
+
+Build an engaging but financially responsible savings experience.
+
+## A. SAVINGS STREAK
+
+Track:
+
+- Current streak.
+- Longest streak.
+- Completed contribution days.
+- Missed days.
+- Milestones.
+
+Do not allow a streak to override the truth of actual financial transactions.
+
+A streak must be based on verified contribution events and transparent rules.
+
+## B. SAVINGS CALENDAR
+
+Create a beautiful calendar view.
+
+Each day should show an appropriate status:
+
+- Contribution completed.
+- Multiple contributions.
+- Missed day.
+- Grace day.
+- Plan paused.
+- Upcoming contribution.
+
+Users should be able to view historical contributions.
+
+## C. SAVINGS MILESTONES
+
+Create milestones:
+
+- 7 days.
+- 14 days.
+- 30 days.
+- 60 days.
+- 90 days.
+- 180 days.
+- 365 days.
+
+Allow authorised administrators to configure milestone rules.
+
+Milestones should reward discipline without misleading users into believing they are guaranteed loan approval.
+
+## D. SAVINGS REMINDERS
+
+Support configurable reminders:
+
+- Morning.
+- Afternoon.
+- Evening.
+- Custom schedule.
+
+Notification channels may include:
+
+- In-app notifications.
+- Email.
+- SMS.
+- WhatsApp through approved integrations.
+
+Allow users to control notifications.
+
+## E. GRACE DAYS
+
+Implement transparent grace-day policies.
+
+The administrator should be able to define:
+
+- Grace days.
+- Plan pause rules.
+- Catch-up contributions.
+- Missed contribution consequences.
+- Contribution rescheduling.
+
+Never silently penalise users.
+
+## F. SAVINGS MOTIVATION
+
+Create:
+
+- Progress bars.
+- Milestone celebrations.
+- Savings summaries.
+- Monthly contribution reports.
+- Achievement badges.
+- Financial habit insights.
+
+Do not use deceptive countdowns or manipulative financial urgency.
+
+---
+
+# 9. SAVINGS WITHDRAWALS
+
+Create a properly controlled withdrawal system.
+
+Withdrawal rules must be configurable according to the applicable savings product and financial partner arrangement.
+
+## Withdrawal types
+
+Where supported:
+
+- Eligible plan withdrawal.
+- Completed plan withdrawal.
+- Partial withdrawal.
+- Full withdrawal.
+- Emergency withdrawal, where the product permits it.
+
+## Withdrawal workflow
+
+1. User initiates a withdrawal request.
+2. System evaluates eligibility.
+3. The user sees applicable rules.
+4. The user sees any applicable fees or restrictions.
+5. User confirms.
+6. Withdrawal is processed through the appropriate financial partner.
+7. Transaction is verified.
+8. Ledger entries are created.
+9. Reconciliation is performed.
+10. User is notified.
+
+Do not use savings balances as an unrestricted lending pool.
+
+Do not silently deduct savings for loans.
+
+Any lawful security arrangement involving pledged savings must have explicit contractual terms, clear user consent, appropriate safeguards and an approved financial architecture.
+
+---
+
+# 10. LOAN ELIGIBILITY ENGINE
+
+This is a core differentiating feature of 1kDaily.
+
+The system should use savings behaviour as one component of loan eligibility.
+
+The concept of 2x and 3x savings should be implemented as configurable potential credit ceilings, not automatic entitlements.
+
+## A. MULTIPLIER MODEL
+
+Initial illustrative multiplier levels:
+
+### 2x Potential Credit Ceiling
+
+A potential ceiling of up to twice eligible savings.
+
+### 3x Potential Credit Ceiling
+
+A potential ceiling of up to three times eligible savings.
+
+Administrators must be able to configure:
+
+- Multiplier levels.
+- Eligibility criteria.
+- Minimum savings duration.
+- Minimum savings balance.
+- Minimum contribution consistency.
+- Previous loan repayment requirements.
+- Maximum loan limits.
+- Applicable risk restrictions.
+
+Do not automatically grant loans based on the multiplier.
+
+## B. ELIGIBILITY FACTORS
+
+The engine should consider, subject to lawful data processing:
+
+- Verified eligible savings balance.
+- Completed savings plans.
+- Contribution consistency.
+- Missed contribution history.
+- Savings duration.
+- Previous loan repayment performance.
+- Verified income.
+- Affordability.
+- Existing financial obligations.
+- Relevant credit information obtained through lawful and authorised means.
+- Guarantors, where applicable.
+- Collateral, where applicable.
+- Loan amount requested.
+- Loan duration.
+- Available lending capital.
+- Risk policies.
+- Applicable regulatory restrictions.
+
+## C. ELIGIBILITY RESULTS
+
+Display an understandable eligibility summary.
+
+Example:
+
+Eligible savings balance: ₦100,000.
+
+Potential 2x ceiling: ₦200,000.
+
+Potential 3x ceiling: ₦300,000.
+
+Actual approved amount: Subject to assessment.
+
+Display the reasons that affect eligibility where reasonably possible.
+
+Do not falsely guarantee credit.
+
+## D. LOAN CAPACITY ENGINE
+
+Implement a modular loan capacity engine.
+
+The engine should:
+
+1. Validate the user's savings history.
+2. Determine eligible savings.
+3. Calculate preliminary multiplier ceilings.
+4. Evaluate repayment capacity.
+5. Consider verified income.
+6. Consider existing obligations.
+7. Consider applicable risk restrictions.
+8. Evaluate guarantor or collateral requirements.
+9. Apply lending policy.
+10. Determine the maximum potentially affordable loan amount.
+11. Generate an assessment record.
+12. Support manual review where required.
+
+The assessment must be auditable.
+
+Do not use arbitrary hidden rules that cannot be explained or reviewed.
+
+Do not use discriminatory factors or unlawful profiling.
+
+## E. LOAN ELIGIBILITY DASHBOARD
+
+Display:
+
+- Savings balance.
+- Eligible savings.
+- Savings duration.
+- Savings consistency.
+- Completed plans.
+- Potential 2x limit.
+- Potential 3x limit.
+- Estimated eligible credit range where appropriate.
+- Assessment status.
+- Eligibility improvement suggestions.
+- Loan history.
+- Repayment history.
+
+Do not imply that a displayed ceiling is a guaranteed loan.
+
+---
+
+# 11. LOAN APPLICATION SYSTEM
+
+Build a complete loan application workflow.
+
+## A. LOAN REQUEST
+
+Users may request a loan subject to eligibility.
+
+Fields:
+
+- Requested amount.
+- Preferred repayment duration.
+- Purpose of loan, where required.
+- Supporting documents, where necessary.
+- Guarantor details, if applicable.
+- Collateral details, if applicable.
+
+## B. LOAN APPLICATION STATES
+
+- Draft.
+- Submitted.
+- Under review.
+- Additional information required.
+- Awaiting guarantor.
+- Awaiting collateral verification.
+- Approved.
+- Approved with conditions.
+- Rejected.
+- Cancelled.
+- Awaiting disbursement.
+- Disbursed.
+- Closed.
+
+## C. LOAN APPLICATION TRACKING
+
+Users should see:
+
+- Application reference.
+- Requested amount.
+- Status.
+- Assessment summary.
+- Required actions.
+- Approval conditions.
+- Terms.
+- Repayment duration.
+- Repayment schedule once approved.
+- Decision history where appropriate.
+
+## D. ADMINISTRATIVE REVIEW
+
+Authorised staff should be able to:
+
+- Review applications.
+- Review financial history.
+- Review verification.
+- Review affordability.
+- Review supporting documentation.
+- Request additional information.
+- Review guarantors.
+- Review collateral.
+- Approve.
+- Reject.
+- Approve with conditions.
+- Record reason codes.
+- Escalate.
+- Audit decisions.
+
+Require appropriate separation of duties for sensitive financial approvals.
+
+---
+
+# 12. LOAN INTEREST AND PRICING ENGINE
+
+Create a flexible interest and loan pricing module.
+
+Do not hardcode interest rates.
+
+Administrators must be able to configure approved loan products.
+
+Loan product configuration may include:
+
+- Product name.
+- Minimum loan.
+- Maximum loan.
+- Interest rate.
+- Interest calculation method.
+- Repayment duration.
+- Repayment frequency.
+- Processing fees, where permitted.
+- Applicable charges.
+- Grace periods.
+- Late-payment rules, subject to legal review.
+- Eligibility requirements.
+- Collateral requirements.
+- Guarantor requirements.
+- Minimum savings duration.
+- Multiplier eligibility.
+- Risk category restrictions.
+
+## Interest calculation
+
+Support a properly defined interest calculation framework.
+
+The system should distinguish clearly between:
+
+- Principal.
+- Interest.
+- Fees.
+- Total payable.
+- Installment amount.
+- Outstanding principal.
+- Outstanding interest.
+- Payments received.
+- Late charges, if lawful and applicable.
+
+Support configurable calculation methods such as:
+
+- Flat interest.
+- Declining balance.
+
+Do not present the two methods as interchangeable.
+
+The calculation methodology must be transparent and legally reviewed.
+
+## LOAN OFFER DISPLAY
+
+Before acceptance, display:
+
+- Principal.
+- Interest rate.
+- Calculation method.
+- Total interest.
+- Fees.
+- Total amount payable.
+- Installment amount.
+- Repayment schedule.
+- Due dates.
+- Consequences of missed payments.
+- Applicable collateral.
+- Applicable guarantor requirements.
+- Terms and conditions.
+
+Require explicit acceptance.
+
+Generate a loan contract or agreement document using the approved contractual templates.
+
+---
+
+# 13. REPAYMENT MANAGEMENT
+
+Build a comprehensive repayment system.
+
+## Repayment methods
+
+Support the architecture for:
+
+- Bank transfers.
+- Payment gateway payments.
+- Approved automated repayment arrangements.
+- Other permitted financial partner channels.
+
+## Repayment schedule
+
+Generate schedules based on:
+
+- Principal.
+- Interest methodology.
+- Duration.
+- Frequency.
+- Applicable fees.
+- Approved loan terms.
+
+Display:
+
+- Installment number.
+- Due date.
+- Principal portion.
+- Interest portion.
+- Amount due.
+- Amount paid.
+- Outstanding amount.
+- Payment status.
+
+## Repayment statuses
+
+- Upcoming.
+- Due.
+- Partially paid.
+- Paid.
+- Overdue.
+- Rescheduled.
+- Cancelled.
+- Reversed.
+
+## Repayment history
+
+Users should see:
+
+- Every repayment.
+- Amount.
+- Date.
+- Transaction reference.
+- Status.
+- Remaining balance.
+- Receipt.
+
+## Repayment reminders
+
+Create configurable reminders:
+
+- Before due date.
+- On due date.
+- After overdue status, subject to lawful and appropriate collection policies.
+
+Never implement harassment, contact scraping, abusive collections or unauthorised access to a user's contacts.
+
+---
+
+# 14. COLLATERAL MANAGEMENT
+
+Create a collateral management module.
+
+Collateral should not be mandatory for every loan.
+
+The platform should allow authorised administrators to configure collateral policies.
+
+## Collateral categories
+
+Possible categories include:
+
+- Verifiable asset.
+- Equipment.
+- Vehicle.
+- Property-related security where legally appropriate.
+- Business asset.
+- Other lawful collateral.
+
+## Collateral records
+
+Record:
+
+- User.
+- Loan application.
+- Collateral category.
+- Description.
+- Estimated value.
+- Valuation date.
+- Valuation method.
+- Ownership evidence.
+- Supporting documents.
+- Verification status.
+- Verification notes.
+- Security agreement reference.
+- Collateral-to-loan ratio.
+- Custody arrangement where applicable.
+- Release status.
+
+## Collateral verification statuses
+
+- Submitted.
+- Pending verification.
+- Verified.
+- Rejected.
+- Under review.
+- Released.
+- Disputed.
+
+## Collateral workflow
+
+1. User submits collateral information.
+2. User uploads appropriate documents.
+3. Authorised personnel review the documents.
+4. Verification is performed through appropriate processes.
+5. Valuation is recorded.
+6. Risk assessment is updated.
+7. Loan application is reviewed.
+8. Appropriate legal documentation is completed.
+9. Security is perfected or otherwise legally established where required.
+10. Collateral status is monitored.
+11. Collateral is released when applicable contractual obligations are satisfied.
+
+Do not assume that uploading a document establishes ownership.
+
+Do not automate seizure or enforcement of collateral without lawful procedures and appropriate review.
+
+---
+
+# 15. GUARANTOR MANAGEMENT
+
+Implement a guarantor workflow.
+
+## Guarantor invitation
+
+The borrower may invite a guarantor where required.
+
+The guarantor should receive a secure invitation.
+
+The guarantor must independently:
+
+- Review the applicable guarantee terms.
+- Provide required verification.
+- Understand the commitment.
+- Consent explicitly.
+- Accept or decline.
+
+## Guarantor records
+
+Record:
+
+- Guarantor identity.
+- Verification status.
+- Relationship to borrower, where appropriate.
+- Contact information.
+- Guarantee terms.
+- Consent timestamp.
+- Loan reference.
+- Guarantee status.
+- Supporting documentation.
+
+## Guarantor statuses
+
+- Invited.
+- Pending.
+- Accepted.
+- Declined.
+- Verified.
+- Invalid.
+- Released.
+
+Do not treat a guarantor as liable without properly executed and legally valid documentation.
+
+---
+
+# 16. WALLET AND FINANCIAL TRANSACTION SYSTEM
+
+Create a carefully designed transaction and financial account system.
+
+The wallet must not be merely a number stored in a user profile.
+
+Implement an auditable financial ledger.
+
+## Financial transaction categories
+
+- Savings contribution.
+- Savings withdrawal.
+- Loan disbursement.
+- Loan repayment.
+- Interest.
+- Fee.
+- Refund.
+- Reversal.
+- Adjustment.
+- Partner settlement.
+- Other properly defined financial events.
+
+## Ledger architecture
+
+Implement appropriate double-entry accounting principles.
+
+Each financial transaction must produce appropriate balanced ledger entries according to the transaction type and financial arrangement.
+
+The ledger must be:
+
+- Auditable.
+- Immutable at the original-entry level.
+- Properly linked.
+- Reconciled.
+- Protected against duplicate transactions.
+- Idempotent.
+- Access-controlled.
+- Traceable.
+
+Use reversals and documented adjustments rather than silently editing historical entries.
+
+## Financial transaction requirements
+
+- Unique transaction references.
+- Idempotency keys.
+- Transaction status.
+- Provider reference.
+- Reconciliation status.
+- Timestamp.
+- Audit metadata.
+- Appropriate ledger entries.
+- Secure verification.
+
+Never credit a transaction based solely on a frontend response.
+
+Never allow an administrator to directly edit balances without a controlled, auditable accounting process.
+
+## Financial reconciliation
+
+Implement a reconciliation architecture for comparing:
+
+- Platform ledger.
+- Payment provider records.
+- Financial partner records.
+- Bank settlement records, where applicable.
+
+Display reconciliation exceptions.
+
+Do not silently resolve discrepancies.
+
+---
+
+# 17. USER DASHBOARD
+
+Design an exceptional, premium, modern financial dashboard.
+
+This is one of the most important interfaces in the application.
+
+The dashboard must communicate progress, trust, financial information and opportunities at a glance.
+
+## Dashboard layout
+
+### Header
+
+Include:
+
+- Welcome message.
+- User avatar.
+- Notifications.
+- Profile menu.
+- Account verification indicator.
+
+### Primary financial cards
+
+Create beautiful cards for:
+
+1. Total eligible savings.
+2. Active savings plans.
+3. Current savings streak.
+4. Potential loan eligibility.
+5. Loan balance, if applicable.
+6. Next repayment, if applicable.
+
+### Savings progress
+
+Create a visual savings progress section.
+
+Display:
+
+- Current plan.
+- Daily amount.
+- Total accumulated.
+- Target.
+- Progress percentage.
+- Remaining days.
+- Next contribution date.
+- Contribution history.
+
+### Savings growth chart
+
+Create a chart showing savings progress over time.
+
+Allow users to view:
+
+- Weekly.
+- Monthly.
+- Quarterly.
+- Plan duration.
+
+Use actual financial records.
+
+### Savings calendar
+
+Display contribution history in an attractive calendar.
+
+### Financial activity
+
+Show recent transactions.
+
+### Loan eligibility preview
+
+Display potential credit eligibility and explain the next steps.
+
+### Savings milestone
+
+Show the next savings milestone.
+
+### Notifications
+
+Show important:
+
+- Savings reminders.
+- Milestones.
+- Transaction confirmations.
+- Loan application updates.
+- Repayment reminders.
+- Account verification updates.
+
+### Quick actions
+
+Include:
+
+- Save Now.
+- Create Savings Plan.
+- View Savings.
+- Check Loan Eligibility.
+- Apply for Loan.
+- View Transactions.
+
+Only display actions the user is permitted to perform.
+
+## Dashboard design
+
+The dashboard must be visually exceptional.
+
+Use:
+
+- Beautiful metric cards.
+- Clear financial figures.
+- Sophisticated charts.
+- Elegant progress indicators.
+- Responsive grid layouts.
+- Appropriate hierarchy.
+- Smooth animations.
+- Mobile-friendly card arrangements.
+- Useful contextual information.
+
+Do not overload the dashboard.
+
+Prioritise the user's most important financial information.
+
+---
+
+# 18. USER NAVIGATION
+
+Create a clean navigation structure.
+
+Recommended user sidebar or mobile navigation:
+
+- Overview.
+- My Savings.
+- Savings Plans.
+- Savings Calendar.
+- Loan Eligibility.
+- My Loans.
+- Repayments.
+- Transactions.
+- Notifications.
+- Profile.
+- Security.
+- Help and Support.
+
+On mobile, use a beautiful responsive bottom navigation for primary areas where appropriate.
+
+Do not force desktop sidebar navigation onto small screens.
+
+---
+
+# 19. ADMINISTRATOR DASHBOARD
+
+Create a sophisticated administrative financial operations dashboard.
+
+The dashboard should be designed for financial operations, risk management, customer management and decision-making.
+
+## Main analytics cards
+
+Display:
+
+- Total registered users.
+- Verified users.
+- Active savers.
+- Active savings plans.
+- Total eligible savings.
+- Total verified contributions.
+- Savings withdrawals.
+- Pending withdrawal requests.
+- Active loans.
+- Pending loan applications.
+- Approved loans.
+- Loans disbursed.
+- Outstanding loan principal.
+- Total repayments.
+- Overdue loans.
+- Portfolio risk indicators.
+- Reconciliation exceptions.
+- Platform revenue, where applicable.
+
+All figures must be derived from actual verified data.
+
+Never fabricate analytics.
+
+## Charts
+
+Implement charts such as:
+
+### Savings growth
+
+Show savings contributions over time.
+
+### User growth
+
+Show user registration trends.
+
+### Contribution activity
+
+Show daily, weekly and monthly contributions.
+
+### Loan disbursement trends
+
+Show loans disbursed over time.
+
+### Repayment performance
+
+Show repayment trends and overdue patterns.
+
+### Loan portfolio distribution
+
+Show loans by status, product and risk category where appropriate.
+
+### Savings plan distribution
+
+Show plans by duration, contribution amount and status.
+
+### Financial reconciliation
+
+Show transaction status and exceptions.
+
+## Dashboard filters
+
+Provide:
+
+- Date range.
+- Transaction period.
+- Savings plan.
+- Loan product.
+- Loan status.
+- Risk category.
+- User status.
+- Verification status.
+
+Where appropriate, allow administrators to export reports securely.
+
+## Analytics requirements
+
+- Use meaningful labels.
+- Show dates and periods.
+- Display actual values.
+- Support filtering.
+- Avoid deceptive chart scales.
+- Use accessible chart presentation.
+- Include appropriate loading states.
+- Include empty states.
+- Include error states.
+
+---
+
+# 20. ADMINISTRATIVE MODULES
+
+Create the following administrative modules.
+
+## A. USER MANAGEMENT
+
+- User list.
+- Search.
+- Filtering.
+- Verification.
+- Profile review.
+- Status management.
+- Account suspension.
+- Account restriction.
+- User activity.
+- Savings history.
+- Loan history.
+- Risk review.
+- Audit history.
+
+## B. SAVINGS MANAGEMENT
+
+- Savings plans.
+- Active plans.
+- Completed plans.
+- Paused plans.
+- Contribution records.
+- Withdrawal requests.
+- Contribution exceptions.
+- Savings plan configuration.
+
+## C. LOAN MANAGEMENT
+
+- Applications.
+- Reviews.
+- Approvals.
+- Rejections.
+- Loan offers.
+- Disbursement.
+- Repayment.
+- Overdue management.
+- Loan rescheduling, where approved.
+- Loan closure.
+
+## D. COLLATERAL MANAGEMENT
+
+- Collateral records.
+- Document verification.
+- Valuation.
+- Security documentation.
+- Verification status.
+- Release management.
+
+## E. GUARANTOR MANAGEMENT
+
+- Guarantor invitations.
+- Verification.
+- Consent records.
+- Guarantee status.
+- Related loans.
+
+## F. FINANCE MANAGEMENT
+
+- Transaction records.
+- Ledger.
+- Reconciliation.
+- Refunds.
+- Reversals.
+- Settlement records.
+- Fees.
+- Financial reports.
+
+## G. RISK MANAGEMENT
+
+- Risk policies.
+- Risk indicators.
+- Review queues.
+- Exceptions.
+- Assessment history.
+- Credit policy configuration.
+
+## H. NOTIFICATION MANAGEMENT
+
+- Notification templates.
+- SMS.
+- Email.
+- In-app notifications.
+- WhatsApp provider integration, where approved.
+- Scheduled reminders.
+- Delivery status.
+
+## I. REPORTS
+
+Create:
+
+- Savings reports.
+- Contribution reports.
+- Withdrawal reports.
+- Loan reports.
+- Repayment reports.
+- Overdue reports.
+- User reports.
+- Financial reports.
+- Reconciliation reports.
+- Risk reports.
+- Collateral reports.
+- Guarantor reports.
+
+## J. SETTINGS
+
+- Savings plans.
+- Saving limits.
+- Durations.
+- Grace periods.
+- Loan products.
+- Interest rules.
+- Fees.
+- Eligibility criteria.
+- Multipliers.
+- Risk policies.
+- Notification settings.
+- Payment providers.
+- Lending partner configuration.
+- System settings.
+
+Sensitive financial configuration changes must require appropriate permissions and audit trails.
+
+---
+
+# 21. ROLE-BASED ACCESS CONTROL
+
+Implement robust role-based access control.
+
+Suggested roles:
+
+- Platform Super Administrator.
+- Platform Operations Administrator.
+- Finance Administrator.
+- Loan Officer.
+- Credit/Risk Officer.
+- Verification Officer.
+- Customer Support Officer.
+- Auditor.
+- Read-only Analyst.
+
+Create permission-based access rather than relying exclusively on hardcoded role names.
+
+Sensitive operations should require appropriate role permissions.
+
+Implement separation of duties.
+
+For example:
+
+- Loan approval should not automatically permit financial disbursement.
+- Transaction reversal should require appropriate permissions.
+- Financial configuration changes should be audited.
+- Collateral verification should be controlled.
+- KYC information should have restricted access.
+- Support staff should not have unrestricted financial access.
+- Auditors should have controlled read-only access.
+
+Implement server-side authorization for every sensitive operation.
+
+---
+
+# 22. NOTIFICATION ENGINE
+
+Build a notification system.
+
+Support:
+
+- In-app notifications.
+- Email.
+- SMS.
+- WhatsApp through an approved provider integration.
+
+Notification categories:
+
+- Welcome.
+- Account verification.
+- Savings contribution.
+- Failed contribution.
+- Savings reminder.
+- Savings milestone.
+- Plan completion.
+- Withdrawal.
+- Loan application.
+- Loan approval.
+- Loan rejection.
+- Additional information request.
+- Loan disbursement.
+- Repayment reminder.
+- Repayment confirmation.
+- Overdue notice, subject to appropriate policies.
+- Security alerts.
+
+Create notification preferences.
+
+Users should be able to manage appropriate notification preferences.
+
+Transactional security notifications should follow appropriate security requirements.
+
+Do not expose sensitive financial details in insecure communication channels.
+
+---
+
+# 23. PROFILE AND ACCOUNT SECURITY
+
+Create a secure user profile.
+
+Include:
+
+- Personal information.
+- Contact details.
+- Verification.
+- Financial profile.
+- Bank details where appropriate.
+- Security settings.
+- Password management.
+- Device and session management where supported.
+- Notification preferences.
+- Account activity.
+- Consent records.
+
+Implement:
+
+- Secure authentication.
+- Session protection.
+- MFA architecture.
+- Password recovery.
+- Account recovery.
+- Rate limiting.
+- Appropriate security alerts.
+- Secure account changes.
+- Audit logging.
+
+Sensitive data must not be unnecessarily displayed.
+
+---
+
+# 24. HELP AND CUSTOMER SUPPORT
+
+Create a customer support module.
+
+Users should be able to:
+
+- Submit support requests.
+- Select a category.
+- Describe a problem.
+- Attach appropriate documents.
+- View ticket status.
+- Receive responses.
+- Track resolution.
+
+Categories:
+
+- Savings.
+- Contributions.
+- Withdrawals.
+- Loan applications.
+- Repayments.
+- Verification.
+- Account security.
+- Technical issues.
+- Other.
+
+Administrators should be able to:
+
+- Manage support tickets.
+- Assign tickets.
+- Respond.
+- Escalate.
+- Resolve.
+- Track response times.
+
+---
+
+# 25. DATABASE DESIGN
+
+Design a robust relational database schema.
+
+Include appropriate tables such as:
+
+- users.
+- user_profiles.
+- user_verifications.
+- user_financial_profiles.
+- user_bank_accounts.
+- consent_records.
+- savings_products.
+- savings_plans.
+- savings_plan_events.
+- savings_contributions.
+- contribution_transactions.
+- withdrawal_requests.
+- withdrawal_transactions.
+- savings_milestones.
+- savings_streaks.
+- loan_products.
+- loan_eligibility_assessments.
+- loan_applications.
+- loan_offers.
+- loans.
+- loan_contracts.
+- loan_repayment_schedules.
+- loan_repayments.
+- guarantors.
+- guarantor_invitations.
+- guarantor_consents.
+- collateral_records.
+- collateral_documents.
+- collateral_valuations.
+- collateral_verifications.
+- financial_accounts.
+- ledger_entries.
+- financial_transactions.
+- transaction_reversals.
+- reconciliation_records.
+- reconciliation_exceptions.
+- notification_templates.
+- notifications.
+- notification_preferences.
+- support_tickets.
+- support_messages.
+- admin_roles.
+- admin_permissions.
+- admin_role_permissions.
+- admin_user_roles.
+- audit_logs.
+- system_settings.
+- risk_policy_configurations.
+- payment_provider_records.
+- lending_partner_records.
+
+The actual schema should be refined based on the architecture.
+
+Implement:
+
+- Foreign keys.
+- Appropriate indexes.
+- Constraints.
+- Unique transaction references.
+- Financial integrity.
+- Appropriate timestamps.
+- Soft deletion where justified.
+- Immutable financial records.
+- Proper audit records.
+
+Do not create unnecessary duplicate data structures.
+
+Use appropriate normalized data structures while maintaining performance.
+
+---
+
+# 26. SECURITY AND DATA PROTECTION
+
+Security must be a first-class architectural requirement.
+
+Implement:
+
+- Supabase Row Level Security.
+- Strict user data isolation.
+- Server-side authorization.
+- Least privilege.
+- Secure API design.
+- Secure file uploads.
+- Secure storage.
+- Sensitive data protection.
+- Audit logging.
+- Rate limiting.
+- Transaction validation.
+- Idempotency.
+- Input validation.
+- Secure secrets management.
+- Appropriate authentication controls.
+- Session management.
+- Database security.
+- Protection against common web vulnerabilities.
+- Secure webhook processing.
+- Payment verification.
+- Fraud detection architecture.
+- Secure administrative access.
+
+## Privacy
+
+Design the system in alignment with applicable Nigerian data protection requirements, including the Nigeria Data Protection Act 2023 and applicable regulatory guidance.
+
+Implement appropriate:
+
+- Privacy notices.
+- Consent management.
+- Data minimisation.
+- Access control.
+- Retention policies.
+- Data subject rights workflows.
+- Secure processing.
+- Data protection incident procedures.
+
+Do not expose sensitive identity information to ordinary administrators unnecessarily.
+
+## Financial security
+
+- Never store financial balances as unverified user-editable values.
+- Never use client-side payment confirmation.
+- Never allow duplicate financial transactions.
+- Never silently modify financial history.
+- Never expose privileged credentials.
+- Never allow unrestricted administrator balance editing.
+- Never process disbursements without authorised controls.
+- Never allow financial operations without proper validation and audit trails.
+
+---
+
+# 27. REGULATORY AND FINANCIAL PARTNER ARCHITECTURE
+
+The platform must be designed with regulatory compliance and financial partnership requirements in mind.
+
+Do not assume that building an application automatically authorises the platform to accept deposits, operate lending activities or hold customer funds.
+
+Create an architecture that can integrate with appropriately authorised financial institutions and providers.
+
+Potential integration areas:
+
+- Payment collection.
+- Savings custody.
+- Customer fund safeguarding.
+- Loan disbursement.
+- Repayment collection.
+- Identity verification.
+- Credit bureau services, where lawfully authorised.
+- Financial account verification.
+- SMS.
+- Email.
+- WhatsApp.
+- Bank transfer.
+
+Create configurable integration abstractions.
+
+Where the platform is not authorised to perform regulated activities directly, the application must support partner-based operational models.
+
+Do not design an unrestricted internal pooled fund using users' savings as lending capital.
+
+Do not promise returns on savings unless the product, legal structure and authorised financial arrangement expressly support them.
+
+---
+
+# 28. LOAN CAPITAL AND LENDING OPERATIONS
+
+Create a lending operations module.
+
+The system must support a legally and operationally appropriate lending model.
+
+Potential models include:
+
+- Loans funded by an authorised partner.
+- Loans funded by a legally approved company lending structure.
+- Other appropriately authorised arrangements.
+
+The platform should record:
+
+- Lending partner.
+- Loan funding source.
+- Funding allocation.
+- Loan disbursement.
+- Principal.
+- Interest.
+- Repayments.
+- Outstanding principal.
+- Financial settlement.
+- Reconciliation.
+
+Do not assume that savings contributions are available as lending capital.
+
+Do not mix customer savings balances and lending capital in the accounting system.
+
+Create a clear financial separation.
+
+---
+
+# 29. PWA AND MOBILE EXPERIENCE
+
+Build a high-quality progressive web application.
+
+Requirements:
+
+- Responsive.
+- Installable.
+- Mobile-friendly.
+- Desktop-friendly.
+- Tablet-friendly.
+- PWA manifest.
+- Appropriate application icons.
+- Install experience.
+- Secure offline handling.
+- Cached non-sensitive static assets.
+- Network status indicators.
+- Appropriate loading states.
+
+Do not cache sensitive financial information indiscriminately.
+
+Do not allow offline transactions to falsely appear as confirmed.
+
+Use a mobile-first design approach.
+
+---
+
+# 30. ANIMATION AND LOADING EXPERIENCE
+
+Create a sophisticated application loading experience.
+
+Design an animated 1kDaily logo reveal.
+
+The logo animation should be lightweight and elegant.
+
+Possible sequence:
+
+1. Logo icon fades in.
+2. Subtle scale transition.
+3. A gentle gold or green accent animation.
+4. 1kDaily wordmark appears.
+5. Tagline appears.
+6. Application transitions smoothly into the loaded screen.
+
+Use this experience appropriately for:
+
+- Application boot.
+- Authentication state resolution.
+- Significant loading events.
+
+Create reusable loading components:
+
+- DailySplashScreen.
+- DailyLoadingScreen.
+- DailySectionLoader.
+- DailyInlineLoader.
+
+For ordinary page navigation, use skeletons and subtle transitions rather than repeatedly blocking the entire application.
+
+Respect reduced-motion settings.
+
+Do not create unnecessary artificial delays.
+
+---
+
+# 31. UI COMPONENT LIBRARY
+
+Create a consistent reusable UI system.
+
+Components should include:
+
+- Dashboard cards.
+- Savings cards.
+- Financial summary cards.
+- Loan eligibility cards.
+- Progress indicators.
+- Charts.
+- Calendar.
+- Transaction tables.
+- Loan tables.
+- Data filters.
+- Search.
+- Pagination.
+- Dialogs.
+- Drawers.
+- Notifications.
+- Forms.
+- Empty states.
+- Loading skeletons.
+- Status badges.
+- Tooltips.
+- Confirmation dialogs.
+- Receipt components.
+- Financial amount components.
+- Date filters.
+- Export components.
+- Responsive navigation.
+
+Create consistent patterns across the application.
+
+---
+
+# 32. FINANCIAL DATA VISUALISATION
+
+Create a dedicated financial data visualisation system.
+
+Use charts and analytics to help users and administrators understand financial activity.
+
+## User analytics
+
+- Savings growth.
+- Contribution consistency.
+- Plan progress.
+- Savings distribution.
+- Milestone progress.
+- Repayment history.
+- Loan balance.
+
+## Administrative analytics
+
+- User growth.
+- Savings growth.
+- Contribution activity.
+- Withdrawal activity.
+- Loan portfolio.
+- Loan disbursement.
+- Repayment performance.
+- Overdue trends.
+- Savings plan distribution.
+- Loan product performance.
+- Risk distribution.
+- Reconciliation performance.
+- Revenue analytics, where applicable.
+
+Charts must be:
+
+- Responsive.
+- Accessible.
+- Accurate.
+- Properly labelled.
+- Filterable where appropriate.
+- Based on actual data.
+
+---
+
+# 33. REPORTING AND EXPORTS
+
+Create a reporting engine.
+
+Reports should include:
+
+- Savings plan reports.
+- Contributions.
+- Withdrawals.
+- Savings consistency.
+- User growth.
+- Loan applications.
+- Approved loans.
+- Rejected loans.
+- Disbursement.
+- Repayment.
+- Outstanding balances.
+- Overdue loans.
+- Collateral.
+- Guarantors.
+- Reconciliation.
+- Financial transactions.
+- Revenue, where applicable.
+
+Allow appropriate exports:
+
+- CSV.
+- PDF.
+
+Exports must respect permission controls.
+
+Do not expose sensitive information through unrestricted exports.
+
+---
+
+# 34. AUDIT AND ACCOUNTABILITY
+
+Create a comprehensive audit logging system.
+
+Log important activities:
+
+- User account changes.
+- KYC changes.
+- Savings plan changes.
+- Loan assessments.
+- Loan decisions.
+- Loan disbursement.
+- Repayment changes.
+- Financial reversals.
+- Financial adjustments.
+- Collateral changes.
+- Guarantor changes.
+- Admin permissions.
+- Configuration changes.
+- Transaction processing.
+- Reconciliation.
+- Sensitive data access where appropriate.
+
+Audit logs must include:
+
+- Actor.
+- Action.
+- Timestamp.
+- Relevant record.
+- Previous state where appropriate.
+- New state where appropriate.
+- Reason where required.
+- Metadata appropriate to the event.
+
+Audit logs must not be casually editable.
+
+---
+
+# 35. PERFORMANCE AND QUALITY
+
+Implement:
+
+- Optimised database queries.
+- Appropriate indexing.
+- Server-side pagination.
+- Efficient charts.
+- Efficient rendering.
+- Responsive image handling.
+- Caching where safe.
+- Secure caching.
+- Loading states.
+- Error states.
+- Empty states.
+- Performance monitoring architecture.
+
+Avoid loading huge datasets into the browser.
+
+Financial and administrative tables should use pagination and filters.
+
+---
+
+# 36. TESTING REQUIREMENTS
+
+Implement comprehensive tests.
+
+## Unit tests
+
+Test:
+
+- Savings calculations.
+- Savings plan calculations.
+- Contribution validation.
+- Eligibility calculations.
+- Multiplier calculations.
+- Affordability calculations.
+- Interest calculations.
+- Repayment schedules.
+- Transaction validation.
+- Financial ledger rules.
+- Collateral eligibility logic.
+
+## Integration tests
+
+Test:
+
+- Payment verification.
+- Savings contributions.
+- Withdrawal workflows.
+- Loan application.
+- Loan approval.
+- Disbursement.
+- Repayment.
+- Reconciliation.
+- Authentication.
+- Authorization.
+- Database operations.
+
+## Security tests
+
+Test:
+
+- User isolation.
+- RLS.
+- Role permissions.
+- Privileged operations.
+- Financial transaction integrity.
+- Duplicate transaction prevention.
+- Authentication.
+- Session protection.
+- API security.
+
+## UI tests
+
+Test:
+
+- Onboarding.
+- Dashboard.
+- Savings plan creation.
+- Contribution.
+- Savings history.
+- Loan eligibility.
+- Loan application.
+- Repayment.
+- Notifications.
+- Administrative workflows.
+- Responsive layouts.
+
+## Financial edge cases
+
+Test:
+
+- Duplicate payment callbacks.
+- Failed payments.
+- Pending payments.
+- Partial repayments.
+- Reversed payments.
+- Incorrect payment references.
+- Insufficient available balance.
+- Concurrent transactions.
+- Missed contributions.
+- Paused plans.
+- Reconciliation discrepancies.
+- Loan rejection.
+- Disbursement failure.
+
+---
+
+# 37. DEVELOPMENT ROADMAP
+
+Do not attempt to build the entire application in one uncontrolled operation.
+
+Build in carefully managed phases.
+
+Preserve working code.
+
+Run tests at the end of each phase.
+
+Do not proceed to the next phase without reviewing the previous phase.
+
+## PHASE 0 — PROJECT AUDIT AND ARCHITECTURE
+
+If a repository exists:
+
+- Inspect the repository.
+- Identify the framework.
+- Identify existing functionality.
+- Identify dependencies.
+- Identify database structures.
+- Identify authentication.
+- Identify existing routes.
+- Identify existing design.
+- Identify security issues.
+- Identify incomplete features.
+- Identify build issues.
+
+If starting from scratch:
+
+- Define architecture.
+- Define folder structure.
+- Define database architecture.
+- Define routing.
+- Define design system.
+- Define integration architecture.
+- Define security architecture.
+
+Deliver:
+
+- Architecture report.
+- Folder structure.
+- Route map.
+- Database schema plan.
+- UI design plan.
+- Security plan.
+- Integration plan.
+- Development roadmap.
+
+Do not start implementing the entire product during Phase 0.
+
+## PHASE 1 — BRANDING AND UI FOUNDATION
+
+Build:
+
+- 1kDaily logo assets.
+- Design system.
+- Typography.
+- Colour palette.
+- Responsive navigation.
+- Application shell.
+- Loading animations.
+- Dashboard layout.
+- Component library.
+- Responsive layouts.
+- PWA foundations.
+
+Build realistic UI states, but do not fabricate financial data in production.
+
+## PHASE 2 — AUTHENTICATION AND USER FOUNDATION
+
+Build:
+
+- Authentication.
+- Registration.
+- Login.
+- Password recovery.
+- Profile.
+- User verification architecture.
+- Roles.
+- Permissions.
+- Session security.
+- User onboarding.
+- User dashboard foundation.
+
+## PHASE 3 — SAVINGS ENGINE
+
+Build:
+
+- Savings products.
+- Savings plan creation.
+- Custom plans.
+- Duration.
+- Contribution tracking.
+- Savings history.
+- Plan progress.
+- Savings calendar.
+- Milestones.
+- Streaks.
+- Reminders.
+- Plan pause.
+- Grace-day rules.
+
+## PHASE 4 — PAYMENT AND LEDGER FOUNDATION
+
+Build:
+
+- Payment integration abstraction.
+- Payment verification.
+- Transaction references.
+- Contribution processing.
+- Ledger.
+- Idempotency.
+- Transaction history.
+- Reconciliation.
+- Secure financial processing.
+
+Do not use real financial transactions in development without appropriate sandbox configuration.
+
+## PHASE 5 — WITHDRAWAL AND SAVINGS MANAGEMENT
+
+Build:
+
+- Withdrawal requests.
+- Withdrawal eligibility.
+- Withdrawal processing architecture.
+- Financial partner integration.
+- Withdrawal history.
+- Approval workflows where required.
+- Reconciliation.
+
+## PHASE 6 — LOAN ELIGIBILITY ENGINE
+
+Build:
+
+- Eligibility rules.
+- 2x multiplier.
+- 3x multiplier.
+- Configurable eligibility.
+- Savings consistency assessment.
+- Affordability.
+- Income assessment.
+- Risk assessment.
+- Eligibility dashboard.
+- Assessment records.
+- Manual review.
+
+## PHASE 7 — LOAN APPLICATION AND APPROVAL
+
+Build:
+
+- Loan products.
+- Loan applications.
+- Loan offers.
+- Loan approval.
+- Rejection.
+- Review workflows.
+- Loan contracts.
+- Approval controls.
+- Audit trails.
+
+## PHASE 8 — GUARANTOR AND COLLATERAL
+
+Build:
+
+- Guarantor invitations.
+- Consent.
+- Verification.
+- Collateral submission.
+- Collateral verification.
+- Valuation.
+- Security documentation.
+- Release workflow.
+
+## PHASE 9 — LOAN DISBURSEMENT AND REPAYMENT
+
+Build:
+
+- Disbursement.
+- Repayment schedules.
+- Repayment collection.
+- Repayment verification.
+- Partial repayment.
+- Repayment history.
+- Overdue tracking.
+- Loan monitoring.
+- Reconciliation.
+
+## PHASE 10 — ADMINISTRATION AND ANALYTICS
+
+Build:
+
+- Admin dashboard.
+- User management.
+- Savings management.
+- Loan management.
+- Finance.
+- Risk.
+- Collateral.
+- Guarantors.
+- Reporting.
+- Analytics.
+- Export.
+- Configuration.
+
+## PHASE 11 — NOTIFICATIONS AND SUPPORT
+
+Build:
+
+- Notification engine.
+- SMS.
+- Email.
+- In-app notifications.
+- WhatsApp integration architecture.
+- Notification preferences.
+- Support tickets.
+
+## PHASE 12 — PWA AND PRODUCTION EXPERIENCE
+
+Build:
+
+- PWA.
+- Responsive optimisation.
+- Installation experience.
+- Offline handling.
+- Mobile optimisation.
+- Performance optimisation.
+- Accessibility.
+- Reduced-motion support.
+
+## PHASE 13 — SECURITY, REGULATORY AND PRODUCTION HARDENING
+
+Review:
+
+- Security.
+- RLS.
+- Authentication.
+- Authorization.
+- Financial ledger.
+- Transaction integrity.
+- Reconciliation.
+- Privacy.
+- Data retention.
+- Audit logging.
+- Payment integration.
+- Lending partner integration.
+- Regulatory requirements.
+- Error handling.
+- Performance.
+- Testing.
+- Deployment.
+
+Prepare the application for controlled production deployment only after the necessary operational, financial, legal and regulatory requirements have been addressed.
+
+---
+
+# 38. ACCEPTANCE CRITERIA
+
+The application must not be considered complete merely because the pages exist.
+
+The product must demonstrate:
+
+- A complete user onboarding experience.
+- A beautiful user dashboard.
+- A beautiful administrator dashboard.
+- Savings plan creation.
+- Daily contribution management.
+- Verified contribution processing.
+- Savings tracking.
+- Streaks.
+- Milestones.
+- Withdrawal workflows.
+- Financial ledger.
+- Reconciliation.
+- Loan eligibility assessment.
+- 2x and 3x multiplier framework.
+- Loan applications.
+- Loan approvals.
+- Guarantor management.
+- Collateral management.
+- Loan disbursement.
+- Repayment.
+- Financial reports.
+- Notifications.
+- Customer support.
+- Security.
+- Role-based access.
+- Audit logs.
+- Responsive design.
+- PWA.
+- Testing.
+
+Every functional button must perform its intended action.
+
+Every financial calculation must be verified.
+
+Every sensitive operation must be properly authorised.
+
+Every financial transaction must be auditable.
+
+The application must not fabricate financial records.
+
+The application must not silently alter financial history.
+
+The application must not promise loans based solely on savings multipliers.
+
+---
+
+# 39. UI/UX QUALITY STANDARD
+
+The quality of the UI/UX is a major priority.
+
+Do not settle for a basic implementation.
+
+Build a product that looks and feels like a professionally funded fintech startup.
+
+The user interface should be:
+
+- Beautiful.
+- Modern.
+- Premium.
+- Intelligent.
+- Clean.
+- Responsive.
+- Highly intuitive.
+- Financially informative.
+- Accessible.
+- Trustworthy.
+
+The dashboard must be one of the strongest parts of the product.
+
+Design outstanding:
+
+- Financial analytics cards.
+- Savings progress cards.
+- Loan eligibility cards.
+- Financial charts.
+- Contribution calendars.
+- Transaction tables.
+- Loan repayment timelines.
+- Progress visualisations.
+- Admin analytics.
+- Responsive mobile layouts.
+
+Use thoughtful spacing, proper typography, subtle animations, clear financial hierarchy and meaningful data visualisation.
+
+Do not use generic template designs.
+
+Do not overcrowd the dashboard.
+
+Do not use fake statistics.
+
+Do not use meaningless decorative charts.
+
+Every chart, card and visualisation must serve a purpose.
+
+---
+
+# 40. FIRST INSTRUCTION TO OPENCODE
+
+Begin with PHASE 0 ONLY.
+
+If the repository already exists, inspect it carefully and preserve existing working code.
+
+If this is a new project, prepare the complete architectural foundation and implementation plan.
+
+Do not implement all phases at once.
+
+Do not immediately generate hundreds of files.
+
+First return:
+
+1. Project architecture.
+2. Recommended folder structure.
+3. Application route map.
+4. Database architecture.
+5. UI/UX design system.
+6. User dashboard design specification.
+7. Admin dashboard design specification.
+8. Savings engine architecture.
+9. Loan eligibility architecture.
+10. Financial ledger architecture.
+11. Payment integration architecture.
+12. Security architecture.
+13. RLS strategy.
+14. Role and permission matrix.
+15. Regulatory and financial partner considerations.
+16. Development phases.
+17. Testing plan.
+18. Risks and mitigation.
+19. Estimated complexity by phase.
+20. Recommended implementation order.
+
+Wait for approval before proceeding to Phase 1.
+
+When approved, implement each phase thoroughly.
+
+At the end of every phase:
+
+- Summarise completed work.
+- List created and modified files.
+- List database changes.
+- Report tests performed.
+- Report test results.
+- Report security considerations.
+- Report remaining issues.
+- Identify the next phase.
+
+Do not claim a feature is complete if it is only a UI mockup.
+
+Do not substitute placeholders for working financial logic.
+
+Do not sacrifice financial integrity for visual design.
+
+Do not sacrifice UI/UX quality for speed.
+
+The objective is to build 1kDaily into a beautiful, trustworthy, scalable and financially responsible savings and credit platform.
+
+# FINAL PRODUCT VISION
+
+1kDaily is not simply an app where people save ₦1,000 daily.
+
+It is a platform that encourages disciplined saving, builds a financial track record, helps users understand their financial capacity and provides a structured, responsible pathway to potential credit opportunities.
+
+Build it with trust.
+
+Build it with discipline.
+
+Build it with intelligence.
+
+Build it with exceptional design.
+
+Build it to scale.
+
+**1kDaily — Save Daily. Build Capacity. Unlock Opportunity.**

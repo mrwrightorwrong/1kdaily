@@ -1,0 +1,27 @@
+{
+  "name": "1kdaily",
+  "version": "0.1.0",
+  "private": true,
+  "description": "1kDaily — Save Daily. Build Capacity. Unlock Opportunity.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22 <27"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @1kdaily/web",
+    "build": "npm run build --workspace @1kdaily/web",
+    "start": "npm run start --workspace @1kdaily/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "verify": "npm run typecheck && npm run test && npm run build",
+    "qa": "node tools/qa/probe.mjs",
+    "qa:mobile": "node tools/qa/mobile.mjs",
+    "qa:sections": "node tools/qa/sections.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.65.1"
+  }
+}
