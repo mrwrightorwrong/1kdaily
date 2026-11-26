@@ -33,25 +33,49 @@ const FIELDS = [
   { key: "email", pattern: /^[A-Za-z/ ]*Email\s*:?\s*/i },
   { key: "bvn", pattern: /^BVN\s*:?\s*/i },
   { key: "nin", pattern: /^NIN\s*:?\s*/i },
+  { key: "resend", pattern: /^Resend\s*API\s*:?\s*/i },
+  { key: "paystackSecret", pattern: /^Paystack\s*Secret\s*(?:Key)?\s*:?\s*/i },
+  { key: "paystackPublic", pattern: /^Paystack\s*Public\s*(?:Key)?\s*:?\s*/i },
 ];
 
 const parsed = {};
 const unknown = [];
+let liveKeysSkipped = 0;
 
 for (const line of raw.split(/\r?\n/)) {
   const trimmed = line.trim();
   if (!trimmed) continue;
+
+  // Section headers, e.g. "Paystack Test Keys>>>>>>>". Never treated as data.
+  if (/^Paystack\s+(Test|Live)\s+Keys/i.test(trimmed) && !trimmed.includes("=")) {
+    continue;
+  }
+
   const field = FIELDS.find((candidate) => candidate.pattern.test(trimmed));
   if (!field) {
     unknown.push(trimmed.slice(0, 24));
     continue;
   }
+
   // Identity numbers are acknowledged, never retained.
   if (field.key === "bvn" || field.key === "nin") {
     parsed[field.key] = "<ignored>";
     continue;
   }
-  parsed[field.key] = trimmed.replace(field.pattern, "").trim();
+
+  const value = trimmed.replace(field.pattern, "").trim();
+
+  // Live credentials are refused by prefix, regardless of which section they
+  // appear in or in what order. A live key on a developer machine is a
+  // financial incident waiting to happen.
+  if (field.key === "paystackSecret" || field.key === "paystackPublic") {
+    if (/^(sk|pk)_live_/i.test(value)) {
+      liveKeysSkipped += 1;
+      continue;
+    }
+  }
+
+  parsed[field.key] = value;
 }
 
 const { url, anonKey, serviceKey, dbPassword, accessToken } = parsed;
@@ -63,6 +87,30 @@ if (!url || !anonKey || !serviceKey) {
 
 const runtimeTarget = "apps/web/.env.local";
 const toolingTarget = ".env.migrate.local";
+
+const paystackSecret = parsed.paystackSecret ?? "";
+const paystackPublic = parsed.paystackPublic ?? "";
+const resendKey = parsed.resend ?? "";
+
+const isTestSecret = /^sk_test_/.test(paystackSecret);
+const isTestPublic = /^pk_test_/.test(paystackPublic);
+
+if (liveKeysSkipped > 0) {
+  console.warn(
+    `REFUSED ${liveKeysSkipped} live Paystack key(s): live credentials are never written to a local env file.`,
+  );
+  console.warn(
+    "The source file still contains them. Rotate the live secret key in the Paystack dashboard and remove it from the file.",
+  );
+}
+
+const paystackLines =
+  (isTestSecret ? `\n# Paystack test mode — sandbox only. Live keys are refused locally.\nPAYSTACK_SECRET_KEY=${paystackSecret}\n` : "") +
+  (isTestPublic ? `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=${paystackPublic}\n` : "");
+
+const resendLines = /^re_/.test(resendKey)
+  ? `\n# Transactional email (Phase 11, or Supabase SMTP once a domain is verified).\nRESEND_API_KEY=${resendKey}\n`
+  : "";
 
 const existingRuntime = existsSync(runtimeTarget) ? readFileSync(runtimeTarget, "utf8") : "";
 const existingPepper = existingRuntime.match(/^KYC_HASH_PEPPER=(.+)$/m)?.[1]?.trim();
@@ -86,8 +134,8 @@ KYC_HASH_PEPPER=${pepper}
 
 # Local development uses the deterministic mock provider. It stores nothing.
 KYC_PROVIDER=mock
-KYC_MOCK_AUTO_VERIFY=true
-`;
+KYC_MOCK_AUTO_VERIFY=false
+${paystackLines}${resendLines}`;
 
 const tooling = `# Migration / tooling credentials — NEVER commit, NEVER expose to the app.
 # Used by tools/db/*.mjs. The access token is a Supabase personal access token.
@@ -114,6 +162,13 @@ console.log(`  NEXT_PUBLIC_SUPABASE_URL        ${url}`);
 console.log(`  NEXT_PUBLIC_SUPABASE_ANON_KEY   <redacted ${anonKey.length} chars>`);
 console.log(`  SUPABASE_SERVICE_ROLE_KEY       <redacted ${serviceKey.length} chars>`);
 console.log(`  KYC_HASH_PEPPER                 <generated ${pepper.length} chars>`);
+console.log(
+  `  PAYSTACK_SECRET_KEY             ${isTestSecret ? "<test, redacted>" : "<missing>"}`,
+);
+console.log(
+  `  NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY ${isTestPublic ? "<test, redacted>" : "<missing>"}`,
+);
+console.log(`  RESEND_API_KEY                  ${/^re_/.test(resendKey) ? "<redacted>" : "<missing>"}`);
 console.log(`Wrote ${toolingTarget}`);
 console.log(`  SUPABASE_ACCESS_TOKEN           ${accessToken ? `<redacted ${accessToken.length} chars>` : "<missing>"}`);
 console.log(`  SUPABASE_PROJECT_REF            ${projectRef}`);
