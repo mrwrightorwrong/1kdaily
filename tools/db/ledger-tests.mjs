@@ -178,6 +178,12 @@ await test("ledger entries and transactions are append-only", async () => {
 await test("a balanced posting updates derived balances", async () => {
   const response = await sql(`
     begin;
+    create temp table before on commit drop as
+      select
+        coalesce((select b.balance_kobo from public.account_balances b
+           join public.financial_accounts a on a.id = b.account_id where a.code = '1000'), 0) as cash,
+        coalesce((select b.balance_kobo from public.account_balances b
+           join public.financial_accounts a on a.id = b.account_id where a.code = '2100'), 0) as equity;
     select app.post_transaction(
       'TEST-BAL-' || gen_random_uuid(),
       'adjustment',
@@ -189,16 +195,16 @@ await test("a balanced posting updates derived balances", async () => {
     );
     set constraints all immediate;
     select
-      (select balance_kobo from public.account_balances b
-        join public.financial_accounts a on a.id = b.account_id
-       where a.code = '1000') as cash,
-      (select balance_kobo from public.account_balances b
-        join public.financial_accounts a on a.id = b.account_id
-       where a.code = '2100') as equity;
+      (select coalesce(b.balance_kobo, 0) from public.account_balances b
+         join public.financial_accounts a on a.id = b.account_id where a.code = '1000')
+        - (select cash from before) as cash_delta,
+      (select coalesce(b.balance_kobo, 0) from public.account_balances b
+         join public.financial_accounts a on a.id = b.account_id where a.code = '2100')
+        - (select equity from before) as equity_delta;
     rollback;`);
   assert(response.ok, response.error);
-  assert(Number(row(response).cash) === 5000, `cash balance ${row(response).cash}`);
-  assert(Number(row(response).equity) === 5000, `equity balance ${row(response).equity}`);
+  assert(Number(row(response).cash_delta) === 5000, `cash delta ${row(response).cash_delta}`);
+  assert(Number(row(response).equity_delta) === 5000, `equity delta ${row(response).equity_delta}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -413,6 +419,84 @@ await test("reconciliation detects a corrupted cached balance", async () => {
   assert(response.ok, response.error);
   assert(Number(row(response).drift) >= 1, "drift was not detected");
   assert(Number(row(response).exceptions) >= 1, "exception count was not recorded");
+});
+
+// ---------------------------------------------------------------------------
+// Reversals
+// ---------------------------------------------------------------------------
+
+await test("a customer cannot reverse a contribution", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.reverse_contribution(
+       (select id from public.savings_contributions where status = 'confirmed' limit 1),
+       'customer attempted a reversal')`,
+  );
+  expectError(response, { code: "42501" });
+});
+
+await test("an authorised reversal restores the day and balances the ledger", async () => {
+  const response = await sql(`
+    begin;
+    set local role authenticated;
+    select set_config('request.jwt.claims', '${claims(CUSTOMER_A)}', true);
+    create temp table ctx on commit drop as
+      select * from public.initiate_contribution('${PLAN}', ${DAILY}, 'ledger-reversal');
+    reset role;
+    select public.confirm_contribution((select contribution_id from ctx), 'prov-reversal', ${DAILY}, 'card', now());
+
+    insert into public.admin_user_roles (user_id, role_id)
+    select '44444444-4444-4444-4444-444444444444', id from public.admin_roles where key = 'finance_admin'
+    on conflict do nothing;
+
+    set local role authenticated;
+    select set_config('request.jwt.claims', '${claims("44444444-4444-4444-4444-444444444444")}', true);
+    select public.reverse_contribution(
+      (select contribution_id from ctx),
+      'Duplicate test charge reversed after provider confirmation'
+    );
+    reset role;
+    set constraints all immediate;
+
+    select
+      (select status from public.savings_contributions where id = (select contribution_id from ctx)) as status,
+      (select count(*)::int from public.savings_plan_days
+        where plan_id = '${PLAN}' and status = 'paid' and contribution_id is not null) as still_paid,
+      (select count(*)::int from public.savings_contribution_allocations
+        where contribution_id = (select contribution_id from ctx)) as allocations,
+      (select balance_kobo from public.account_balances b
+        join public.financial_accounts a on a.id = b.account_id
+       where a.code = '2200-${CUSTOMER_A}') as savings,
+      (select count(*)::int from public.ledger_entries e
+        where e.transaction_id = (select reversal_transaction_id from public.savings_contributions
+                                   where id = (select contribution_id from ctx))) as reversal_entries;
+    rollback;`);
+  assert(response.ok, response.error);
+  assert(row(response).status === "reversed", `status ${row(response).status}`);
+  assert(Number(row(response).still_paid) === 0, "a day remained paid after reversal");
+  assert(Number(row(response).allocations) === 1, "allocation record missing");
+  assert(Number(row(response).savings) === 0, `savings balance ${row(response).savings}`);
+  assert(Number(row(response).reversal_entries) === 2, "reversal is not a balanced two-entry transaction");
+});
+
+await test("a contribution cannot be reversed twice", async () => {
+  const response = await sql(`
+    begin;
+    set local role authenticated;
+    select set_config('request.jwt.claims', '${claims(CUSTOMER_A)}', true);
+    create temp table ctx on commit drop as
+      select * from public.initiate_contribution('${PLAN}', ${DAILY}, 'ledger-reversal-twice');
+    reset role;
+    select public.confirm_contribution((select contribution_id from ctx), 'prov-rev2', ${DAILY}, 'card', now());
+    insert into public.admin_user_roles (user_id, role_id)
+    select '44444444-4444-4444-4444-444444444444', id from public.admin_roles where key = 'finance_admin'
+    on conflict do nothing;
+    set local role authenticated;
+    select set_config('request.jwt.claims', '${claims("44444444-4444-4444-4444-444444444444")}', true);
+    select public.reverse_contribution((select contribution_id from ctx), 'First reversal reason text');
+    select public.reverse_contribution((select contribution_id from ctx), 'Second reversal attempt text');
+    rollback;`);
+  expectError(response, { code: "22023", includes: "confirmed" });
 });
 
 const passed = results.filter((entry) => entry.passed).length;

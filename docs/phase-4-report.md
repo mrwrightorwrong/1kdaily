@@ -1,7 +1,8 @@
 # Phase 4 (first increment) — Ledger, payments and verified contributions
 
 **Date:** 26 November 2026
-**Status:** Money core delivered and tested. **One thing is not yet proven end-to-end:** a real sandbox payment that credits savings. Everything up to the credit decision is verified.
+**Status:** Complete. Verified end-to-end with a real ₦1,000 sandbox payment.
+**Evidence:** contribution `KD-CON-737eec…4669` confirmed → Dr `1000` ₦1,000 / Cr `2200-<user>` ₦1,000 → one plan day paid → user savings ₦1,000 → ledger reconciliation 0 exceptions, 0 drift.
 
 ---
 
