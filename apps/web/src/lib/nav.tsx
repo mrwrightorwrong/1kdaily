@@ -20,7 +20,8 @@ import {
   Wallet,
 } from "lucide-react";
 
-export const CURRENT_PHASE = 4;
+/** Highest phase whose features are live; higher-phase items show a marker. */
+export const CURRENT_PHASE = 6;
 
 export type NavItem = {
   readonly label: string;
@@ -31,10 +32,11 @@ export type NavItem = {
 };
 
 export const PRIMARY_NAV: readonly NavItem[] = [
-  { label: "Overview", href: "/app", icon: LayoutDashboard, phase: 1 },
+  { label: "Home", href: "/app", icon: LayoutDashboard, phase: 1 },
   { label: "My Savings", href: "/app/savings", icon: PiggyBank, phase: 3 },
   { label: "Savings Plans", href: "/app/plans", icon: Target, phase: 3 },
   { label: "Calendar", href: "/app/calendar", icon: CalendarDays, phase: 3 },
+  { label: "Withdrawals", href: "/app/withdrawals", icon: Wallet, phase: 5 },
   { label: "Loan Eligibility", href: "/app/eligibility", icon: Percent, phase: 6 },
   { label: "My Loans", href: "/app/loans", icon: HandCoins, phase: 7 },
   { label: "Repayments", href: "/app/repayments", icon: Receipt, phase: 9 },
@@ -48,16 +50,41 @@ export const PRIMARY_NAV: readonly NavItem[] = [
 export const MOBILE_NAV: readonly NavItem[] = [
   PRIMARY_NAV[0]!,
   PRIMARY_NAV[1]!,
-  PRIMARY_NAV[5]!,
-  PRIMARY_NAV[7]!,
-  PRIMARY_NAV[9]!,
+  PRIMARY_NAV[6]!,
+  PRIMARY_NAV[8]!,
+  PRIMARY_NAV[10]!,
 ];
 
-export const SIDEBAR_GROUPS: ReadonlyArray<{ readonly title: string; readonly items: readonly NavItem[] }> = [
-  { title: "Money", items: [PRIMARY_NAV[0]!, PRIMARY_NAV[1]!, PRIMARY_NAV[2]!, PRIMARY_NAV[3]!] },
-  { title: "Credit", items: [PRIMARY_NAV[4]!, PRIMARY_NAV[5]!, PRIMARY_NAV[6]!] },
-  { title: "Records", items: [PRIMARY_NAV[7]!, PRIMARY_NAV[8]!] },
-  { title: "Account", items: [PRIMARY_NAV[9]!, PRIMARY_NAV[10]!, PRIMARY_NAV[11]!] },
+const item = (href: string): NavItem =>
+  PRIMARY_NAV.find((candidate) => candidate.href === href) ?? PRIMARY_NAV[0]!;
+
+export const DASHBOARD_NAV = item("/app");
+
+export const SIDEBAR_GROUPS: ReadonlyArray<{
+  readonly key: string;
+  readonly title: string;
+  readonly items: readonly NavItem[];
+}> = [
+  {
+    key: "savings",
+    title: "Savings",
+    items: [item("/app/savings"), item("/app/plans"), item("/app/calendar"), item("/app/withdrawals")],
+  },
+  {
+    key: "credit",
+    title: "Credit",
+    items: [item("/app/eligibility"), item("/app/loans"), item("/app/repayments")],
+  },
+  {
+    key: "records",
+    title: "Records",
+    items: [item("/app/transactions"), item("/app/notifications")],
+  },
+  {
+    key: "accounts",
+    title: "Accounts",
+    items: [item("/app/profile"), item("/app/security"), item("/app/support")],
+  },
 ];
 
 export const ADMIN_NAV: readonly NavItem[] = [
