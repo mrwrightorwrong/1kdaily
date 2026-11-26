@@ -132,3 +132,23 @@ and must be asserted by tests.
 **Constrains.** New tables must either add explicit grants or rely on the `alter default privileges`
 that migration 05 installs. A migration that creates a table and forgets both will fail at runtime,
 not at review time.
+
+---
+
+## ADR-013 — A savings plan is a schedule, and only the ledger may mark a day paid
+
+**Decision.** Plan activation materialises one row per expected contribution day. Those days start
+`scheduled` and become `grace`, `missed`, `paused` or `skipped` through explicit rules. `paid` and
+`paid_kobo` are written only by the verified-payment path (Phase 4).
+
+**Why.** Streaks, consistency, grace usage and eligibility all depend on "which day was paid?".
+Deriving that from timestamps creates disputes at day boundaries; deriving it from a stored balance
+creates two sources of truth. A materialised schedule gives one auditable answer per day.
+
+The alternative — a development simulator that marks days paid so the UI looks alive — was rejected.
+It would put fabricated money into the same table the credit engine will read, and no amount of
+labelling survives a query written two phases later.
+
+**Constrains.** Until Phase 4, a new plan shows zero accumulated and days turn grace/missed as real
+time passes. That is the intended demonstration: the schedule is real, the money is not yet.
+

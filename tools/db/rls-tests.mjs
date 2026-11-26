@@ -119,11 +119,12 @@ const row = (response) => response.rows[0] ?? {};
 // ---------------------------------------------------------------------------
 
 if (!process.argv.includes("--no-fixtures")) {
-  const fixtures = readFileSync("supabase/tests/phase2_fixtures.sql", "utf8");
-  const applied = await sql(fixtures);
-  if (!applied.ok) {
-    console.error("Fixture setup failed:", applied.error);
-    process.exit(1);
+  for (const file of ["supabase/tests/phase2_fixtures.sql", "supabase/tests/phase3_fixtures.sql"]) {
+    const applied = await sql(readFileSync(file, "utf8"));
+    if (!applied.ok) {
+      console.error(`Fixture setup failed (${file}):`, applied.error);
+      process.exit(1);
+    }
   }
   console.log("Fixtures applied.\n");
 }
@@ -433,6 +434,214 @@ await test("profile RPC returns the caller's verified email", async () => {
   assert(response.ok, response.error);
   assert(row(response).email === "alice.tests@1kdaily.test", "wrong email");
   assert(row(response).email_verified === true, "email should be confirmed in fixtures");
+});
+
+// ---------------------------------------------------------------------------
+// Phase 3: savings plans
+// ---------------------------------------------------------------------------
+
+const FIXTURE_PLAN = "aaaaaaaa-0000-4000-8000-000000000001";
+
+await test("customer can read the product catalogue", async () => {
+  const response = await asUser(CUSTOMER_A, "select count(*)::int as n from public.savings_products");
+  assert(response.ok, response.error);
+  assert(row(response).n >= 4, `expected catalogue rows, got ${row(response).n}`);
+});
+
+await test("schedule maintenance applies grace before marking missed", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.refresh_my_plan_days();
+     reset role;
+     select
+       (select count(*)::int from public.savings_plan_days
+         where plan_id = '${FIXTURE_PLAN}' and status = 'grace') as grace,
+       (select count(*)::int from public.savings_plan_days
+         where plan_id = '${FIXTURE_PLAN}' and status = 'missed') as missed,
+       (select grace_days_used from public.savings_plans where id = '${FIXTURE_PLAN}') as used`,
+  );
+  assert(response.ok, response.error);
+  assert(row(response).grace === 2, `expected 2 grace days, got ${row(response).grace}`);
+  assert(row(response).missed === 3, `expected 3 missed days, got ${row(response).missed}`);
+  assert(row(response).used === 2, `expected grace used 2, got ${row(response).used}`);
+});
+
+await test("another customer cannot see the plan or its days", async () => {
+  const response = await asUser(
+    CUSTOMER_B,
+    `select
+       (select count(*)::int from public.savings_plans) as plans,
+       (select count(*)::int from public.savings_plan_days) as days`,
+  );
+  assert(response.ok, response.error);
+  assert(row(response).plans === 0, `expected 0 plans, got ${row(response).plans}`);
+  assert(row(response).days === 0, `expected 0 days, got ${row(response).days}`);
+});
+
+await test("another customer cannot pause a plan they do not own", async () => {
+  const response = await asUser(CUSTOMER_B, `select public.pause_my_plan('${FIXTURE_PLAN}')`);
+  expectError(response, { code: "P0002" });
+});
+
+await test("auditor with savings:read can read plans", async () => {
+  const response = await asUser(AUDITOR, "select count(*)::int as n from public.savings_plans");
+  assert(response.ok, response.error);
+  assert(row(response).n >= 1, "auditor could not read the fixture plan");
+});
+
+await test("verification officer without savings:read cannot read plans", async () => {
+  const response = await asUser(STAFF, "select count(*)::int as n from public.savings_plans");
+  assert(response.ok, response.error);
+  assert(row(response).n === 0, `expected 0 plans, got ${row(response).n}`);
+});
+
+await test("customer cannot write plans or days directly", async () => {
+  const plans = await asUser(
+    CUSTOMER_A,
+    `insert into public.savings_plans
+       (user_id, product_id, name, daily_amount_kobo, duration_days, start_date, end_date,
+        withdrawal_policy, withdrawal_terms)
+     select auth.uid(), id, 'Hack', 100000, 30, current_date, current_date + 29,
+            withdrawal_policy, withdrawal_terms
+       from public.savings_products where code = 'starter'`,
+  );
+  expectError(plans, { code: "42501" });
+
+  const days = await asUser(
+    CUSTOMER_A,
+    `update public.savings_plan_days set status = 'paid'
+      where plan_id = '${FIXTURE_PLAN}'`,
+  );
+  expectError(days, { code: "42501" });
+});
+
+await test("preset plans reject a different daily amount", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.create_savings_plan('starter', 200000, 30, current_date, null)`,
+  );
+  expectError(response, { code: "22023", includes: "daily amount" });
+});
+
+await test("custom plans enforce the configured limits", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.create_savings_plan('custom', 1000, 30, current_date, null)`,
+  );
+  expectError(response, { code: "22023" });
+});
+
+await test("a duration must be offered by the product", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.create_savings_plan('starter', 100000, 365, current_date, null)`,
+  );
+  expectError(response, { code: "22023", includes: "duration" });
+});
+
+await test("a plan cannot start in the past", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.create_savings_plan('starter', 100000, 30, current_date - 1, null)`,
+  );
+  expectError(response, { code: "22023", includes: "past" });
+});
+
+await test("creating a plan materialises its schedule", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `create temp table ctx on commit drop as
+       select public.create_savings_plan('growth', 200000, 60, current_date, 'Test goal') as id;
+     reset role;
+     select
+       (select count(*)::int from public.savings_plan_days d
+         where d.plan_id = (select id from ctx)) as days,
+       (select status from public.savings_plans where id = (select id from ctx)) as status,
+       (select end_date = start_date + 59 from public.savings_plans
+         where id = (select id from ctx)) as end_ok`,
+  );
+  assert(response.ok, response.error);
+  assert(row(response).days === 60, `expected 60 days, got ${row(response).days}`);
+  assert(row(response).status === "active", `expected active, got ${row(response).status}`);
+  assert(row(response).end_ok === true, "end date is not start + duration - 1");
+});
+
+await test("a customer cannot hold more than three active plans", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.create_savings_plan('starter', 100000, 30, current_date, null);
+     select public.create_savings_plan('starter', 100000, 30, current_date, null);
+     select public.create_savings_plan('starter', 100000, 30, current_date, null);`,
+  );
+  expectError(response, { code: "22023", includes: "three active" });
+});
+
+await test("pause then resume extends the schedule by the paused time", async () => {
+  const response = await sql(`
+    begin;
+    create temp table ctx(id uuid) on commit drop;
+    grant all on ctx to authenticated;
+    set local role authenticated;
+    select set_config('request.jwt.claims', '${claims(CUSTOMER_A)}', true);
+    insert into ctx select public.create_savings_plan('starter', 100000, 30, current_date, null);
+    select public.pause_my_plan((select id from ctx));
+    reset role;
+    update public.savings_plans
+       set paused_at = now() - interval '2 days'
+     where id = (select id from ctx);
+    set local role authenticated;
+    select public.resume_my_plan((select id from ctx));
+    reset role;
+    select
+      (select end_date - start_date + 1 from public.savings_plans where id = (select id from ctx)) as span,
+      (select pause_days_used from public.savings_plans where id = (select id from ctx)) as paused_days,
+      (select count(*)::int from public.savings_plan_days
+        where plan_id = (select id from ctx) and status = 'paused') as paused_rows;
+    rollback;`);
+  assert(response.ok, response.error);
+  assert(row(response).span === 32, `expected a 32-day span, got ${row(response).span}`);
+  assert(row(response).paused_days === 2, `expected 2 paused days, got ${row(response).paused_days}`);
+  assert(row(response).paused_rows === 0, "expected no paused day rows for a same-day start");
+});
+
+await test("cancelling a plan marks future days skipped", async () => {
+  const response = await sql(`
+    begin;
+    create temp table ctx(id uuid) on commit drop;
+    grant all on ctx to authenticated;
+    set local role authenticated;
+    select set_config('request.jwt.claims', '${claims(CUSTOMER_A)}', true);
+    insert into ctx select public.create_savings_plan('starter', 100000, 30, current_date, null);
+    select public.cancel_my_plan((select id from ctx), 'Test cancellation');
+    reset role;
+    select
+      (select status from public.savings_plans where id = (select id from ctx)) as status,
+      (select count(*)::int from public.savings_plan_days
+        where plan_id = (select id from ctx) and status = 'skipped') as skipped;
+    rollback;`);
+  assert(response.ok, response.error);
+  assert(row(response).status === "cancelled", `expected cancelled, got ${row(response).status}`);
+  assert(row(response).skipped === 30, `expected 30 skipped days, got ${row(response).skipped}`);
+});
+
+await test("reminder preferences are private", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select public.set_reminder_preferences(true, '07:30', array['in_app', 'email']);
+     reset role;
+     select enabled, reminder_time, array_length(channels, 1) as channels
+       from public.savings_reminder_preferences where user_id = '${CUSTOMER_A}'`,
+  );
+  assert(response.ok, response.error);
+  assert(row(response).reminder_time === "07:30:00", `unexpected time ${row(response).reminder_time}`);
+  assert(row(response).channels === 2, `unexpected channel count ${row(response).channels}`);
+
+  const other = await asUser(
+    CUSTOMER_B,
+    "select count(*)::int as n from public.savings_reminder_preferences",
+  );
+  assert(other.ok, other.error);
+  assert(row(other).n === 0, "another customer's reminder preferences were visible");
 });
 
 // ---------------------------------------------------------------------------

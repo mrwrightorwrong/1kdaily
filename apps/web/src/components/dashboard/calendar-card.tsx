@@ -1,82 +1,56 @@
-import { formatBusinessDate } from "@1kdaily/core";
-import { Badge, Card, CardContent, CardHeader, CardTitle } from "@/components/ui/primitives";
-import { buildMonthCalendar } from "@/lib/calendar";
+import { CalendarDays } from "lucide-react";
+import Link from "next/link";
+import { todayBusinessDate } from "@1kdaily/core";
+import { PlanCalendar, type CalendarDay } from "@/components/savings/plan-calendar";
+import { Badge, Card, CardContent, CardHeader, CardTitle, buttonVariants } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
 
-const LEGEND = [
-  { label: "Paid", className: "bg-brand-500" },
-  { label: "Multiple", className: "bg-ink-900" },
-  { label: "Grace", className: "bg-gold-500" },
-  { label: "Missed", className: "bg-danger-600/30 ring-1 ring-danger-600/50" },
-  { label: "Upcoming", className: "bg-line" },
-] as const;
-
-export function CalendarCard() {
-  const calendar = buildMonthCalendar();
-  const daysInMonth = calendar.cells.filter((cell) => cell.inMonth).length;
+export function CalendarCard({
+  days,
+  hasPlans,
+}: {
+  readonly days: readonly CalendarDay[];
+  readonly hasPlans: boolean;
+}) {
+  const month = todayBusinessDate().slice(0, 7);
+  const paidThisMonth = days.filter(
+    (day) => day.date.slice(0, 7) === month && (day.status === "paid" || day.status === "partially_paid"),
+  ).length;
 
   return (
     <Card>
       <CardHeader>
         <div>
           <CardTitle>Savings calendar</CardTitle>
-          <p className="mt-1 text-[0.75rem] text-muted">{calendar.monthLabel} · WAT</p>
+          <p className="mt-1 text-[0.75rem] text-muted">
+            {hasPlans ? "All plans · West Africa Time" : "No schedule yet"}
+          </p>
         </div>
-        <Badge variant="neutral">0 of {daysInMonth} days</Badge>
+        <Badge variant={hasPlans ? "neutral" : "warning"}>
+          {hasPlans ? `${paidThisMonth} paid this month` : "No plan"}
+        </Badge>
       </CardHeader>
 
       <CardContent>
-        <div className="grid grid-cols-7 gap-1">
-          {calendar.weekdayLabels.map((day) => (
-            <span
-              key={day}
-              aria-hidden
-              className="pb-1 text-center text-[0.5625rem] font-semibold uppercase tracking-wide text-subtle"
-            >
-              {day.slice(0, 1)}
+        {hasPlans ? (
+          <PlanCalendar days={days} />
+        ) : (
+          <div className="py-8 text-center">
+            <span className="mx-auto grid size-10 place-items-center rounded-xl bg-canvas text-muted ring-1 ring-line">
+              <CalendarDays className="size-4.5" strokeWidth={1.9} aria-hidden />
             </span>
-          ))}
-
-          {calendar.cells.map((cell) => {
-            const isToday = cell.date === calendar.today;
-            if (!cell.inMonth) {
-              return (
-                <div
-                  key={cell.date}
-                  aria-hidden
-                  className="grid aspect-square place-items-center rounded-md text-[0.625rem] text-subtle opacity-30"
-                >
-                  {cell.dayOfMonth}
-                </div>
-              );
-            }
-            return (
-              <div
-                key={cell.date}
-                aria-current={isToday ? "date" : undefined}
-                aria-label={`${formatBusinessDate(cell.date, "medium")}: no contribution recorded`}
-                title={`${formatBusinessDate(cell.date, "medium")} — no contribution recorded`}
-                className={cn(
-                  "grid aspect-square place-items-center rounded-md border text-[0.625rem]",
-                  isToday
-                    ? "border-brand-600 bg-brand-50 font-semibold text-brand-800"
-                    : "border-transparent text-muted",
-                )}
-              >
-                {cell.dayOfMonth}
-              </div>
-            );
-          })}
-        </div>
-
-        <ul className="mt-4 flex flex-wrap gap-x-3 gap-y-1.5">
-          {LEGEND.map((item) => (
-            <li key={item.label} className="flex items-center gap-1.5">
-              <span className={cn("size-1.5 rounded-full", item.className)} aria-hidden />
-              <span className="text-[0.625rem] text-muted">{item.label}</span>
-            </li>
-          ))}
-        </ul>
+            <p className="mt-3 text-[0.8125rem] font-semibold text-ink-900">No contribution days</p>
+            <p className="mx-auto mt-1 max-w-[30ch] text-[0.6875rem] leading-relaxed text-muted">
+              Activate a plan and its schedule appears here immediately.
+            </p>
+            <Link
+              href="/app/plans"
+              className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "mt-3")}
+            >
+              Choose a plan
+            </Link>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

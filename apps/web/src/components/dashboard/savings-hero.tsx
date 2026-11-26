@@ -11,17 +11,19 @@ export function SavingsHero({
   currentStreakDays,
   emailVerified,
   identitySubmitted,
+  hasPlan,
 }: {
   readonly eligibleSavingsKobo: Kobo;
   readonly activePlans: number;
   readonly currentStreakDays: number;
   readonly emailVerified: boolean;
   readonly identitySubmitted: boolean;
+  readonly hasPlan: boolean;
 }) {
   const steps = [
     { label: "Confirm your email address", done: emailVerified, href: "/app/profile" },
     { label: "Verify your identity", done: identitySubmitted, href: "/app/profile" },
-    { label: "Activate a daily savings plan", done: false, href: "/app/plans" },
+    { label: "Activate a daily savings plan", done: hasPlan, href: "/app/plans" },
   ] as const;
 
   return (

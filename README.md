@@ -4,8 +4,8 @@
 
 A daily savings and credit-eligibility platform for the Nigerian market. Built in gated phases; see [`docs/phase-2-report.md`](docs/phase-2-report.md) for current status.
 
-> **Status: Phase 2 complete — accounts, profiles, identity verification, RBAC and RLS.**
-> Authentication and identity are live. No payments, ledger, savings balances or credit decisions exist yet.
+> **Status: Phase 3 complete — savings plans, schedules, calendar, streaks and milestones.**
+> Authentication, identity verification and the plan engine are live. Contributions, the ledger and credit decisions are not.
 > BVN and NIN are never stored: the database has no column that can hold one.
 
 ---
@@ -28,9 +28,10 @@ npm run dev                                      # http://localhost:3000
 | `npm test` | Unit tests (money, time, identity primitives) |
 | `npm run verify` | typecheck → tests → build |
 | `npm run db:sql -- --file <path>` | Run SQL through the Supabase Management API |
-| `npm run db:test` | 30 RLS/RPC security assertions against the live project |
+| `npm run db:test` | 46 RLS/RPC security and savings-engine assertions against the live project |
 | `npm run db:role -- <email> <role>` | Grant/revoke a staff role |
-| `npm run e2e` | Full journey: sign-up → onboarding → identity → staff review → verified |
+| `npm run e2e` | Identity journey: sign-up → onboarding → verification → staff review |
+| `npm run e2e:phase3` | Plan journey: catalogue → activation → pause/resume → cancel → dashboard |
 | `npm run qa` | Headless render probe: overflow, console errors, screenshots |
 | `npm run check:encoding` | UTF-8 BOM / mojibake guard |
 | `npm run check:identity -- --keys <path> --db --git` | Prove real BVN/NIN values are absent from source, git history and database |
@@ -61,6 +62,28 @@ tools/qa/               visual probe, mobile frames, Phase 2 E2E
 tools/setup/            key-file → env writer (never prints secrets)
 docs/                   ADRs and phase reports
 ```
+
+---
+
+## Savings plans (Phase 3)
+
+A plan is a **materialised schedule**, not a running total. On activation the database writes one
+row per expected contribution day (`savings_plan_days`). Everything else is a query over those rows:
+
+| Concept | Rule |
+| --- | --- |
+| Missed day | the business date passed with no confirmed contribution |
+| Grace | the first N missed days per plan (product-configured) are marked `grace` instead |
+| Streak | consecutive `paid` days; grace and missed break it, paused and skipped are neutral |
+| Consistency | paid days ÷ judged days (paid + partial + missed + grace) |
+| Milestone | 7/14/30/60/90/180/365 **paid** days, per plan |
+| Pause | days inside the pause are not missed; on resume the remaining schedule shifts by the pause length |
+| Cancel | future days become `skipped`; paid days stay in the record |
+
+**No contributions are recorded in this phase.** There is no simulation mode, no seeded "paid" days
+and no fake balance: a plan created today shows zero paid, and its days become grace or missed as
+real time passes. Confirmation is wired to the ledger in Phase 4, which is the only thing allowed to
+write `paid_kobo`.
 
 ---
 
@@ -114,12 +137,11 @@ Deferred: CSP, rate limiting beyond auth defaults, TOTP enrolment screen, custom
 
 ## What is intentionally not here yet
 
-- Savings products, plans, contribution days and streaks (Phase 3)
-- Payments, double-entry ledger, reconciliation (Phase 4)
+- Contributions, the double-entry ledger, reconciliation (Phase 4)
 - Withdrawals (Phase 5)
 - Loan eligibility, applications, disbursement, repayment (Phases 6–9)
-- Admin analytics beyond the identity queue (Phase 10)
-- Notifications and support (Phase 11)
+- Admin analytics beyond the identity queue and plan catalogue (Phase 10)
+- Notification delivery and support (Phase 11)
 - Service worker / offline caching (Phase 12)
 
 ---

@@ -121,7 +121,12 @@ const COPY: Record<string, SectionCopy> = {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return PRIMARY_NAV.filter((item) => item.href !== "/app").map((item) => ({
+  // Routes that now have real implementations must not also be prerendered as
+  // placeholders.
+  const implemented = new Set(["savings", "plans", "calendar"]);
+  return PRIMARY_NAV.filter(
+    (item) => item.href !== "/app" && !implemented.has(item.href.replace("/app/", "")),
+  ).map((item) => ({
     section: item.href.replace("/app/", ""),
   }));
 }

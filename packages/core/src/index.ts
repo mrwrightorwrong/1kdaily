@@ -40,3 +40,23 @@ export {
   weekdayOf,
 } from "./time";
 export type { BusinessDate, BusinessDateFormat } from "./time";
+
+export {
+  MILESTONES,
+  buildSchedule,
+  expectedTotal,
+  isPlanFinished,
+  milestoneProgress,
+  planDaysByDate,
+  planLength,
+  summarisePlan,
+} from "./savings";
+export type {
+  Milestone,
+  MilestoneProgress,
+  PlanDay,
+  PlanDayStatus,
+  PlanInput,
+  PlanProgress,
+  PlanStatus,
+} from "./savings";

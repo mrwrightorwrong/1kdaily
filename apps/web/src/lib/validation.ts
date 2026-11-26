@@ -134,8 +134,29 @@ export const identitySchema = z
     consent: true as const,
   }));
 
-export const identityDecisionSchema = z.object({
-  document_id: z.string().uuid("Invalid document reference"),
+export const planSchema = z.object({
+  product_code: z.string().trim().min(2).max(30),
+  daily_amount: z.string().trim().max(20).optional(),
+  duration_days: z.coerce.number().int().min(1, "Choose a duration").max(730),
+  start_date: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a start date"),
+  goal: z.string().trim().max(160, "Maximum 160 characters").optional(),
+  confirm: z.string().optional(),
+});
+
+export const reminderSchema = z.object({
+  enabled: z.string().optional(),
+  reminder_time: z
+    .string()
+    .trim()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Choose a time"),
+  in_app: z.string().optional(),
+  email: z.string().optional(),
+});
+
+export const identityDecisionSchema = z.object({  document_id: z.string().uuid("Invalid document reference"),
   decision: z.enum(["verify", "reject", "request_review"]),
   reason: z
     .string()

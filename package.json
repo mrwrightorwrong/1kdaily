@@ -21,6 +21,7 @@
     "qa:mobile": "node tools/qa/mobile.mjs",
     "qa:sections": "node tools/qa/sections.mjs",
     "e2e": "node tools/qa/e2e-phase2.mjs",
+    "e2e:phase3": "node tools/qa/e2e-phase3.mjs",
     "db:sql": "node tools/db/sql.mjs",
     "db:test": "node tools/db/rls-tests.mjs",
     "db:role": "node tools/db/grant-role.mjs",
