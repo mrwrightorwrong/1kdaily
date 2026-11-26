@@ -1,43 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-type Theme = "light" | "dark" | "system";
+type Theme = "light" | "dark";
 const STORAGE_KEY = "kd-theme";
 
 function apply(theme: Theme): void {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const dark = theme === "dark" || (theme === "system" && prefersDark);
-  document.documentElement.classList.toggle("dark", dark);
+  document.documentElement.classList.toggle("dark", theme === "dark");
 }
 
 export function ThemeToggle({ className }: { readonly className?: string }) {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? "system";
+    const stored = (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? "light";
     setTheme(stored);
     setMounted(true);
     apply(stored);
   }, []);
 
-  const next: Record<Theme, Theme> = { light: "dark", dark: "system", system: "light" };
-  const Icon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
-  const label = theme === "dark" ? "Dark theme" : theme === "light" ? "Light theme" : "System theme";
+  const next: Theme = theme === "dark" ? "light" : "dark";
+  const Icon = theme === "dark" ? Moon : Sun;
 
   return (
     <button
       type="button"
-      aria-label={`${label}. Switch to ${next[theme]} theme.`}
-      title={`${label} — click for ${next[theme]}`}
+      aria-label={`${theme === "dark" ? "Dark" : "Light"} mode. Switch to ${next} mode.`}
+      title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
       onClick={() => {
-        const value = next[theme];
-        setTheme(value);
-        localStorage.setItem(STORAGE_KEY, value);
-        apply(value);
+        setTheme(next);
+        localStorage.setItem(STORAGE_KEY, next);
+        apply(next);
       }}
       className={cn(
         "grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-ink-900/5 hover:text-ink-900",

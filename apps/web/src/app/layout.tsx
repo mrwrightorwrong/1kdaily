@@ -64,7 +64,7 @@ export default function RootLayout({ children }: { readonly children: React.Reac
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var t=localStorage.getItem('kd-theme')||'system';var d=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();",
+              "(function(){try{var d=localStorage.getItem('kd-theme')==='dark';document.documentElement.classList.toggle('dark',d);}catch(e){}})();",
           }}
         />
       </head>
