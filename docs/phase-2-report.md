@@ -135,6 +135,7 @@ masked queue → approves with a reason → customer sees "Identity verified" �
 | Fixture cleanup blocked by append-only triggers | Security suite could not re-run | Fixtures made idempotent without deleting users |
 | Reused synthetic BVN across E2E runs | Duplicate-identity control blocked verification (correct behaviour) | Unique identifier per run |
 | `AccessTokin` / keys file has no separators | Setup tool could not parse it | Label-based parser, values never printed |
+| Real BVN/NIN copy-pasted into a unit test | Exactly the exposure this phase must prevent | Synthetic constants, commit amended, object store pruned, audit tool added |
 
 ---
 
@@ -180,7 +181,30 @@ masked queue → approves with a reason → customer sees "Identity verified" �
 
 ---
 
-## 8. Phase 3 prerequisites
+## 9. Identity-leak audit
+
+Requested explicitly: protect BVN and NIN from public exposure. After the implementation, the
+actual identifiers from the operator's key file were searched for across three surfaces:
+
+| Surface | Method | Result |
+| --- | --- | --- |
+| Source tree | every file, excluding `node_modules`/`.next`/`.git`/screenshots | 0 occurrences (139 files) |
+| Git object store | `git cat-file --batch-all-objects`, including unreachable objects | 0 occurrences (1.6 MB) |
+| Database | `to_jsonb(row)::text LIKE` across 7 identity-related tables | 0 rows |
+
+Repeatable: `npm run check:identity -- --keys <path> --db --git`. Values are read at runtime and
+never printed.
+
+**Incident during the phase.** The first version of `packages/core/src/__tests__/identity.test.ts`
+contained the operator's real BVN/NIN as test data — exactly the failure mode this requirement is
+about. It was found by the audit above, replaced with synthetic constants, and the Phase 2 commit was
+amended, the reflog expired and the object store pruned (`git gc --prune=now`). The old commit object
+was confirmed absent and the full object-store scan returned clean. The lesson is recorded in ADR-011:
+identity values must never be copy-pasted into fixtures, even "temporarily".
+
+---
+
+## 10. Phase 3 prerequisites
 
 1. Confirm plan rules with the business: minimum/maximum daily amounts, durations, grace-day policy,
    missed-day consequences, pause rules, withdrawal restrictions.

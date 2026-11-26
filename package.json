@@ -25,7 +25,8 @@
     "db:test": "node tools/db/rls-tests.mjs",
     "db:role": "node tools/db/grant-role.mjs",
     "secrets:setup": "node tools/setup/env-from-keys.mjs",
-    "check:encoding": "node tools/check-encoding.mjs ."
+    "check:encoding": "node tools/check-encoding.mjs .",
+    "check:identity": "node tools/check-identity-leak.mjs"
   },
   "devDependencies": {
     "playwright-core": "^1.65.1"

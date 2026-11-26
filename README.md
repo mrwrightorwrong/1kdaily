@@ -33,6 +33,7 @@ npm run dev                                      # http://localhost:3000
 | `npm run e2e` | Full journey: sign-up → onboarding → identity → staff review → verified |
 | `npm run qa` | Headless render probe: overflow, console errors, screenshots |
 | `npm run check:encoding` | UTF-8 BOM / mojibake guard |
+| `npm run check:identity -- --keys <path> --db --git` | Prove real BVN/NIN values are absent from source, git history and database |
 
 QA scripts drive the locally installed Edge/Chrome through `playwright-core` — no browser download. Artefacts land in `.screens/` (git-ignored).
 
@@ -86,6 +87,15 @@ Enforced by:
 6. **Duplicate control** — a partial unique index on `(kind, digest) WHERE status = 'verified'` prevents the same number verifying two accounts.
 
 Real BVN/NIN values never belong in this repository, its env files, tests or logs. Local development uses a deterministic mock provider that stores nothing.
+
+**Audit it yourself:**
+
+```bash
+node tools/check-identity-leak.mjs --keys "<your keys file>" --db --git
+# Source tree: 0 leak(s) · Git objects: 0 leak(s) · Database: 0 leak(s)
+```
+
+The scanner reads the identifiers at runtime and prints only counts. It checks every tracked file, every git object (including unreachable ones), and every row of the identity-related tables. At the time of the Phase 2 commit it reported **CLEAN** on all three.
 
 ---
 
