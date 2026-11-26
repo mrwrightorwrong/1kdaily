@@ -102,11 +102,17 @@ export function MobileNav() {
 
                     <div className="flex-1 overflow-y-auto px-3 py-4 no-scrollbar">
                       {SIDEBAR_GROUPS.map((group) => (
-                        <div key={group.title} className="mb-5 last:mb-0">
-                          <p className="px-3 pb-2 text-[0.5625rem] font-semibold uppercase tracking-[0.16em] text-subtle">
+                        <details
+                          key={group.title}
+                          className="mb-4 last:mb-0"
+                          open={group.items.some(
+                            (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+                          )}
+                        >
+                          <summary className="cursor-pointer list-none px-3 pb-2 text-[0.5625rem] font-semibold uppercase tracking-[0.16em] text-subtle [&::-webkit-details-marker]:hidden">
                             {group.title}
-                          </p>
-                          <ul className="space-y-0.5">
+                          </summary>
+                          <ul className="space-y-0.5 pt-1">
                             {group.items.map((item) => {
                               const active =
                                 item.href === "/app"
@@ -138,7 +144,7 @@ export function MobileNav() {
                               );
                             })}
                           </ul>
-                        </div>
+                        </details>
                       ))}
                     </div>
 
