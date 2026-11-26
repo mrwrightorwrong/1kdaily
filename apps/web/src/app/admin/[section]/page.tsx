@@ -18,7 +18,7 @@ const COPY: Record<string, string> = {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return ADMIN_NAV.filter((item) => item.href !== "/admin").map((item) => ({
+  return ADMIN_NAV.filter((item) => item.href !== "/admin" && item.href !== "/admin/loans").map((item) => ({
     section: item.href.replace("/admin/", ""),
   }));
 }
