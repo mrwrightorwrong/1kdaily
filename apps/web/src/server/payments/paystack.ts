@@ -122,6 +122,25 @@ export async function verifyTransaction(reference: string): Promise<VerifiedTran
   };
 }
 
+export async function createTransferRecipient(input: {
+  readonly name: string;
+  readonly accountNumber: string;
+  readonly bankCode: string;
+}): Promise<{ recipientCode: string; last4: string }> {
+  const data = await request<{ recipient_code: string }>("/transferrecipient", {
+    method: "POST",
+    body: JSON.stringify({
+      type: "nuban",
+      name: input.name,
+      account_number: input.accountNumber,
+      bank_code: input.bankCode,
+      currency: "NGN",
+    }),
+  });
+
+  return { recipientCode: data.recipient_code, last4: input.accountNumber.slice(-4) };
+}
+
 /**
  * HMAC-SHA512 of the raw request body, keyed with the secret key. Comparison is
  * constant-time. The raw body must be the exact bytes Paystack signed — parsing

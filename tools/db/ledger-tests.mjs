@@ -499,6 +499,102 @@ await test("a contribution cannot be reversed twice", async () => {
   expectError(response, { code: "22023", includes: "confirmed" });
 });
 
+// ---------------------------------------------------------------------------
+// Withdrawals
+// ---------------------------------------------------------------------------
+
+const WITHDRAWAL_SETUP = `
+  set local role authenticated;
+  select set_config('request.jwt.claims', '${claims(CUSTOMER_A)}', true);
+  create temp table pay on commit drop as
+    select * from public.initiate_contribution('${PLAN}', ${DAILY}, 'wdr-pay');
+  reset role;
+  select public.confirm_contribution((select contribution_id from pay), 'prov-wdr', ${DAILY}, 'card', now());
+  update public.savings_plans set status = 'completed', completed_at = now()
+   where id = '${PLAN}';
+  insert into public.user_bank_accounts
+    (id, user_id, bank_code, bank_name, account_name, account_last4, recipient_code)
+  values
+    ('bbbbbbbb-0000-4000-8000-000000000001', '${CUSTOMER_A}', '058', 'GTBank',
+     'Alice Adeyemi', '1234', 'RCP_test_1')
+  on conflict (id) do nothing;
+  set local role authenticated;
+  select set_config('request.jwt.claims', '${claims(CUSTOMER_A)}', true);
+`;
+
+await test("an active plan is not eligible for withdrawal", async () => {
+  const response = await asUser(
+    CUSTOMER_A,
+    `select eligible, reason from public.my_withdrawal_eligibility('${PLAN}')`,
+  );
+  assert(response.ok, response.error);
+  assert(row(response).eligible === false, "an active plan was reported as eligible");
+});
+
+await test("withdrawals reserve balance and cannot exceed it", async () => {
+  const response = await sql(`
+    begin;
+    ${WITHDRAWAL_SETUP}
+    select public.request_withdrawal(
+      '${PLAN}', 'bbbbbbbb-0000-4000-8000-000000000001', ${DAILY / 2}, 'wdr-1'
+    );
+    select * from public.my_withdrawal_eligibility('${PLAN}');
+    rollback;`);
+  assert(response.ok, response.error);
+  assert(row(response).eligible === true, "completed plan should be eligible");
+  assert(Number(row(response).available_kobo) === DAILY / 2, `available ${row(response).available_kobo}`);
+
+  const over = await sql(`
+    begin;
+    ${WITHDRAWAL_SETUP}
+    select public.request_withdrawal(
+      '${PLAN}', 'bbbbbbbb-0000-4000-8000-000000000001', ${DAILY / 2}, 'wdr-a'
+    );
+    select public.request_withdrawal(
+      '${PLAN}', 'bbbbbbbb-0000-4000-8000-000000000001', ${DAILY}, 'wdr-b'
+    );
+    rollback;`);
+  expectError(over, { code: "22023", includes: "exceeds" });
+});
+
+await test("only finance can approve, and payout posts to the ledger", async () => {
+  const response = await sql(`
+    begin;
+    ${WITHDRAWAL_SETUP}
+    create temp table req on commit drop as
+      select public.request_withdrawal(
+        '${PLAN}', 'bbbbbbbb-0000-4000-8000-000000000001', ${DAILY / 2}, 'wdr-pay'
+      ) as id;
+    reset role;
+
+    insert into public.admin_user_roles (user_id, role_id)
+    select '44444444-4444-4444-4444-444444444444', id
+      from public.admin_roles where key = 'finance_admin'
+    on conflict do nothing;
+
+    set local role authenticated;
+    select set_config('request.jwt.claims', '${claims("44444444-4444-4444-4444-444444444444")}', true);
+    select public.decide_withdrawal((select id from req), 'approve', 'Identity and bank details verified');
+    reset role;
+
+    select public.mark_withdrawal_paid((select id from req), 'TRF_test_1');
+    set constraints all immediate;
+
+    select
+      (select status from public.withdrawal_requests where id = (select id from req)) as status,
+      (select count(*)::int from public.ledger_entries e
+        where e.transaction_id = (select ledger_transaction_id from public.withdrawal_requests
+                                   where id = (select id from req))) as entries,
+      (select balance_kobo from public.account_balances b
+        join public.financial_accounts a on a.id = b.account_id
+       where a.code = '2200-${CUSTOMER_A}') as savings;
+    rollback;`);
+  assert(response.ok, response.error);
+  assert(row(response).status === "paid", `status ${row(response).status}`);
+  assert(Number(row(response).entries) === 2, "payout is not a balanced two-entry transaction");
+  assert(Number(row(response).savings) === DAILY / 2, `savings ${row(response).savings}`);
+});
+
 const passed = results.filter((entry) => entry.passed).length;
 const failed = results.length - passed;
 console.log(`\n${passed}/${results.length} passed${failed ? `, ${failed} failed` : ""}.`);
