@@ -5,21 +5,25 @@ import { Money } from "@/components/finance/money";
 import { buttonVariants } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
 
-const STEPS = [
-  "Verify your phone and email",
-  "Activate a daily savings plan",
-  "Make your first confirmed contribution",
-] as const;
-
 export function SavingsHero({
   eligibleSavingsKobo,
   activePlans,
   currentStreakDays,
+  emailVerified,
+  identitySubmitted,
 }: {
   readonly eligibleSavingsKobo: Kobo;
   readonly activePlans: number;
   readonly currentStreakDays: number;
+  readonly emailVerified: boolean;
+  readonly identitySubmitted: boolean;
 }) {
+  const steps = [
+    { label: "Confirm your email address", done: emailVerified, href: "/app/profile" },
+    { label: "Verify your identity", done: identitySubmitted, href: "/app/profile" },
+    { label: "Activate a daily savings plan", done: false, href: "/app/plans" },
+  ] as const;
+
   return (
     <section
       aria-labelledby="savings-hero-heading"
@@ -41,7 +45,7 @@ export function SavingsHero({
               Total eligible savings
             </p>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[0.5rem] font-semibold uppercase tracking-[0.1em] text-white/55">
-              No ledger yet
+              Ledger not live
             </span>
           </div>
 
@@ -50,7 +54,7 @@ export function SavingsHero({
           </p>
 
           <p className="mt-3 max-w-md text-[0.8125rem] leading-relaxed text-white/55">
-            When your ledger is live, this figure is derived from confirmed contributions on eligible
+            When the ledger is live, this figure is derived from confirmed contributions on eligible
             plans — never from a stored, editable balance.
           </p>
 
@@ -76,21 +80,32 @@ export function SavingsHero({
         </div>
 
         <div className="glass-card rounded-2xl p-4 sm:p-5">
-          <p className="text-[0.75rem] font-semibold text-white">Start here</p>
+          <div className="flex items-center justify-between">
+            <p className="text-[0.75rem] font-semibold text-white">Your setup</p>
+            <span className="text-[0.5625rem] font-semibold uppercase tracking-[0.1em] text-white/40">
+              {steps.filter((step) => step.done).length} of {steps.length}
+            </span>
+          </div>
+
           <ol className="mt-3 space-y-2.5">
-            {STEPS.map((step, index) => (
-              <li key={step} className="flex items-start gap-2.5">
+            {steps.map((step) => (
+              <li key={step.label} className="flex items-start gap-2.5">
                 <span
                   className={cn(
                     "mt-0.5 grid size-4 shrink-0 place-items-center rounded-full",
-                    index === 0
-                      ? "bg-brand-400/25 text-brand-200"
-                      : "bg-white/10 text-white/40",
+                    step.done ? "bg-brand-400/25 text-brand-200" : "bg-white/10 text-white/40",
                   )}
                 >
                   <Check className="size-2.5" strokeWidth={3} aria-hidden />
                 </span>
-                <span className="text-[0.75rem] leading-snug text-white/70">{step}</span>
+                <span
+                  className={cn(
+                    "text-[0.75rem] leading-snug",
+                    step.done ? "text-white/45 line-through decoration-white/25" : "text-white/70",
+                  )}
+                >
+                  {step.label}
+                </span>
               </li>
             ))}
           </ol>

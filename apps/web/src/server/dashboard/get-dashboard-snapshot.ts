@@ -3,13 +3,12 @@ import { fromKobo, type Kobo } from "@1kdaily/core";
 /**
  * Dashboard read model.
  *
- * Phase 1 has no authentication, no database and no ledger, so this returns an
- * explicit "no account" state. That is deliberate: the dashboard must render
- * honest empty states rather than fabricated balances.
+ * Phase 2 adds authentication, profiles, consent and identity verification. The
+ * savings ledger does not exist until Phase 4, so eligible savings is a real
+ * zero rather than a placeholder: no confirmed contributions can exist yet.
  *
- * Phase 2: resolve the session and return the authenticated, KYC-gated view.
- * Phase 4: replace the zeroed totals with ledger-derived figures from a SQL
- *          view, never from application-side addition of contributions.
+ * Phase 4 will replace the zeroed totals with ledger-derived figures from a SQL
+ * view, never from application-side addition of contributions.
  */
 export type DashboardSnapshot = {
   readonly state: "no_account";

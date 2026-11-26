@@ -28,12 +28,12 @@ if (!executablePath) {
 const TARGETS = [
   { name: "home", path: "/", width: 1440, height: 900 },
   { name: "home-mobile", path: "/", width: 390, height: 844 },
-  { name: "app", path: "/app", width: 1440, height: 900 },
-  { name: "app-mobile", path: "/app", width: 390, height: 844 },
-  { name: "admin", path: "/admin", width: 1440, height: 900 },
-  { name: "admin-mobile", path: "/admin", width: 390, height: 844 },
+  { name: "sign-up", path: "/sign-up", width: 1440, height: 900 },
+  { name: "sign-up-mobile", path: "/sign-up", width: 390, height: 844 },
+  { name: "sign-in", path: "/sign-in", width: 1280, height: 900 },
+  { name: "verify-email", path: "/verify-email", width: 1280, height: 900 },
+  { name: "forgot-password", path: "/forgot-password", width: 1280, height: 900 },
   { name: "design", path: "/design", width: 1280, height: 900 },
-  { name: "placeholder", path: "/app/plans", width: 1440, height: 900 },
   { name: "legal", path: "/legal/privacy", width: 900, height: 900 },
   { name: "404", path: "/does-not-exist", width: 1280, height: 800 },
 ];

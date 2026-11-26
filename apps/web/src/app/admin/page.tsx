@@ -1,4 +1,4 @@
-import { ArrowRight, Info } from "lucide-react";
+import { ArrowRight, Info, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import {
   Badge,
@@ -10,6 +10,8 @@ import {
   buttonVariants,
 } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
+import { createSupabaseServerClient } from "@/server/supabase/server";
+import { getPermissions, requireUser } from "@/server/auth/session";
 
 const KPIS = [
   { label: "Registered users", note: "identity" },
@@ -29,7 +31,18 @@ const QUEUES = [
   { label: "Reconciliation exceptions", detail: "Awaiting investigation" },
 ] as const;
 
-export default function AdminOverviewPage() {
+export default async function AdminOverviewPage() {
+  await requireUser();
+  const permissions = await getPermissions();
+  const canReadKyc = permissions.includes("kyc:read");
+
+  let pendingIdentity = 0;
+  if (canReadKyc) {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase.rpc("admin_identity_queue", { p_limit: 200 });
+    pendingIdentity = (data ?? []).length;
+  }
+
   return (
     <div className="animate-rise">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -47,11 +60,35 @@ export default function AdminOverviewPage() {
       <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-warn-500/25 bg-warn-50 p-3.5">
         <Info className="mt-0.5 size-4 shrink-0 text-warn-500" strokeWidth={2} aria-hidden />
         <p className="text-[0.75rem] leading-relaxed text-[#7a5300]">
-          This console is a Phase 1 shell. Analytics arrive in Phase 10, backed by ledger and
-          reconciliation views. Placeholders below are intentionally empty rather than populated with
-          sample figures.
+          Identity verification is live. Savings, lending and finance modules arrive in later phases;
+          their placeholders are intentionally empty rather than populated with sample figures.
         </p>
       </div>
+
+      {canReadKyc ? (
+        <Link
+          href="/admin/kyc"
+          className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-card border border-line bg-surface p-4 shadow-card transition-colors hover:border-line-strong"
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-xl bg-brand-50 text-brand-700">
+              <ShieldCheck className="size-4" strokeWidth={1.9} aria-hidden />
+            </span>
+            <div>
+              <p className="text-[0.875rem] font-semibold text-ink-900">Identity review queue</p>
+              <p className="text-[0.6875rem] text-muted">
+                {pendingIdentity === 0
+                  ? "Nothing waiting for a decision."
+                  : `${pendingIdentity} record${pendingIdentity === 1 ? "" : "s"} awaiting review.`}
+              </p>
+            </div>
+          </div>
+          <span className="inline-flex items-center gap-1 text-[0.75rem] font-semibold text-brand-700">
+            Open queue
+            <ArrowRight className="size-3.5" aria-hidden />
+          </span>
+        </Link>
+      ) : null}
 
       <section aria-label="Key metrics" className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
         {KPIS.map((kpi) => (
@@ -119,9 +156,9 @@ export default function AdminOverviewPage() {
       </div>
 
       <p className="mt-6 text-[0.625rem] leading-relaxed text-subtle">
-        Access to this console requires staff authentication, permission-based authorisation and
-        separation of duties (Phase 2 / Phase 10). Until then it is an unauthenticated design shell
-        in a preview build — it must not be deployed as a live operations tool.
+        Access requires staff authentication and permission-based authorisation. Identity decisions
+        are audited with the actor, reason and previous state. Separation of duties governs financial
+        approvals in later phases.
       </p>
     </div>
   );

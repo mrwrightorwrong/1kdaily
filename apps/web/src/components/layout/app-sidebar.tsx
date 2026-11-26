@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogOut, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
+import { signOutAction } from "@/server/actions/auth";
 import { SIDEBAR_GROUPS } from "@/lib/nav";
 import { cn } from "@/lib/cn";
 
@@ -11,7 +13,17 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AppSidebar() {
+export function AppSidebar({
+  displayName,
+  email,
+  initials,
+  isAdmin,
+}: {
+  readonly displayName: string;
+  readonly email: string;
+  readonly initials: string;
+  readonly isAdmin: boolean;
+}) {
   const pathname = usePathname();
 
   return (
@@ -47,7 +59,7 @@ export function AppSidebar() {
                         aria-hidden
                       />
                       <span className="truncate">{item.label}</span>
-                      {item.phase > 1 ? (
+                      {item.phase > 2 ? (
                         <span
                           className="ml-auto rounded-full bg-canvas px-1.5 py-0.5 text-[0.5rem] font-semibold text-subtle ring-1 ring-line"
                           title={`Enabled in Phase ${item.phase}`}
@@ -62,22 +74,38 @@ export function AppSidebar() {
             </ul>
           </div>
         ))}
+
+        {isAdmin ? (
+          <div className="mt-2 border-t border-line pt-4">
+            <Link
+              href="/admin"
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[0.8125rem] font-medium text-ink-900 hover:bg-canvas"
+            >
+              <ShieldCheck className="size-4 text-accent-600" strokeWidth={1.9} aria-hidden />
+              Operations console
+            </Link>
+          </div>
+        ) : null}
       </nav>
 
       <div className="border-t border-line p-3">
-        <div className="rounded-xl bg-canvas p-3">
-          <p className="text-[0.625rem] font-semibold uppercase tracking-[0.12em] text-subtle">
-            Preview build
-          </p>
-          <p className="mt-1.5 text-[0.6875rem] leading-relaxed text-muted">
-            No live account, payment rail or ledger is connected in Phase 1.
-          </p>
-          <Link
-            href="/design"
-            className="mt-2 inline-block text-[0.6875rem] font-semibold text-brand-700 hover:underline"
-          >
-            View design system
-          </Link>
+        <div className="flex items-center gap-2.5 rounded-xl p-2">
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-ink-900 text-[0.625rem] font-semibold text-white">
+            {initials}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[0.75rem] font-semibold text-ink-900">{displayName}</p>
+            <p className="truncate text-[0.625rem] text-subtle">{email}</p>
+          </div>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              aria-label="Sign out"
+              className="grid size-7 place-items-center rounded-lg text-subtle transition-colors hover:bg-canvas hover:text-ink-900"
+            >
+              <LogOut className="size-3.5" aria-hidden />
+            </button>
+          </form>
         </div>
       </div>
     </aside>

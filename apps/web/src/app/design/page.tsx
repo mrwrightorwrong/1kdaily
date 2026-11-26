@@ -104,7 +104,7 @@ export default function DesignSystemPage() {
 
       <main id="main" className="mx-auto w-full max-w-5xl px-5 py-10">
         <h1 className="text-[1.75rem] font-semibold tracking-[-0.02em] text-ink-900">
-          Phase 1 foundations
+          Design foundations
         </h1>
         <p className="mt-2 max-w-2xl text-[0.875rem] leading-relaxed text-muted">
           Tokens and primitives used across the consumer app and the operations console. Three rules

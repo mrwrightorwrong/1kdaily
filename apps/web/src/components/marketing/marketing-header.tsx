@@ -39,8 +39,8 @@ export function MarketingHeader() {
           <Link href="/sign-in" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
             Sign in
           </Link>
-          <Link href="/app" className={cn(buttonVariants({ variant: "primary", size: "sm" }))}>
-            Preview dashboard
+          <Link href="/sign-up" className={cn(buttonVariants({ variant: "primary", size: "sm" }))}>
+            Create account
           </Link>
         </div>
 
@@ -75,11 +75,11 @@ export function MarketingHeader() {
         </nav>
         <div className="mt-5 flex flex-col gap-2">
           <Link
-            href="/app"
+            href="/sign-up"
             onClick={() => setOpen(false)}
             className={cn(buttonVariants({ variant: "primary", size: "md" }), "w-full")}
           >
-            Preview dashboard
+            Create account
           </Link>
           <Link
             href="/sign-in"

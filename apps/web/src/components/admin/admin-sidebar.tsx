@@ -50,10 +50,10 @@ export function AdminSidebar() {
       <div className="border-t border-white/10 p-3">
         <div className="rounded-xl bg-white/5 p-3 ring-1 ring-inset ring-white/10">
           <p className="text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-white/40">
-            Phase 1 shell
+            Phase 2
           </p>
           <p className="mt-1.5 text-[0.6875rem] leading-relaxed text-white/50">
-            No staff accounts, permissions or analytics are connected yet.
+            Identity verification is live. Savings and finance modules arrive in later phases.
           </p>
           <Link
             href="/app"

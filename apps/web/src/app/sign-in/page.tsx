@@ -1,66 +1,62 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Check, Lock } from "lucide-react";
-import { Logo } from "@/components/brand/logo";
-import { Badge, Card, CardContent, buttonVariants } from "@/components/ui/primitives";
-import { cn } from "@/lib/cn";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { SignInForm } from "@/components/auth/forms";
+import { safeNextPath } from "@/lib/form";
 
 export const metadata: Metadata = {
   title: "Sign in",
   robots: { index: false, follow: false },
 };
 
-const COMING = [
-  "Email and phone verification at registration",
-  "Password authentication with rate limiting",
-  "TOTP multi-factor authentication",
-  "Session and device review",
-];
+const ERRORS: Record<string, string> = {
+  link_expired: "That link has expired. Sign in, or request a new one.",
+  callback_failed: "We could not complete that sign-in link. Try again.",
+};
 
-export default function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string; error?: string; reset?: string }>;
+}) {
+  const params = await searchParams;
+  const next = params.next ? safeNextPath(params.next) : undefined;
+  const error = params.error ? ERRORS[params.error] : undefined;
+
   return (
-    <main id="main" className="grid min-h-dvh place-items-center bg-canvas px-5 py-12">
-      <div className="w-full max-w-sm">
-        <Logo size="md" />
-
-        <div className="mt-8 flex items-center gap-2">
-          <h1 className="text-[1.5rem] font-semibold tracking-[-0.02em] text-ink-900">Sign in</h1>
-          <Badge variant="warning">Phase 2</Badge>
-        </div>
-        <p className="mt-2 text-[0.8125rem] leading-relaxed text-muted">
-          Authentication is not connected in this preview. There are no accounts, so there is nothing
-          to sign in to yet — and no placeholder form pretending otherwise.
-        </p>
-
-        <Card className="mt-6">
-          <CardContent>
-            <p className="flex items-center gap-1.5 text-[0.625rem] font-semibold uppercase tracking-[0.14em] text-subtle">
-              <Lock className="size-3" aria-hidden />
-              Arriving in Phase 2
-            </p>
-            <ul className="mt-3 space-y-2.5">
-              {COMING.map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 grid size-4 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700">
-                    <Check className="size-2.5" strokeWidth={3} aria-hidden />
-                  </span>
-                  <span className="text-[0.8125rem] leading-snug text-body">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
-        <div className="mt-6 flex flex-col gap-2">
-          <Link href="/app" className={cn(buttonVariants({ variant: "primary", size: "lg" }))}>
-            Open dashboard preview
-            <ArrowRight className="size-4" aria-hidden />
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in to see your savings record, verification status and eligibility position."
+      footer={
+        <span>
+          New to 1kDaily?{" "}
+          <Link href="/sign-up" className="font-semibold text-brand-700 hover:underline">
+            Create an account
           </Link>
-          <Link href="/" className={cn(buttonVariants({ variant: "ghost", size: "md" }))}>
-            Back to home
-          </Link>
-        </div>
+        </span>
+      }
+    >
+      <div className="space-y-4">
+        {error ? (
+          <div
+            role="alert"
+            className="rounded-xl border border-danger-600/25 bg-danger-50 px-3.5 py-3 text-[0.75rem] leading-relaxed text-[#8f1d1d]"
+          >
+            {error}
+          </div>
+        ) : null}
+
+        {params.reset === "success" ? (
+          <div
+            role="status"
+            className="rounded-xl border border-brand-200 bg-brand-50 px-3.5 py-3 text-[0.75rem] leading-relaxed text-brand-800"
+          >
+            Password updated. Sign in with your new password.
+          </div>
+        ) : null}
+
+        <SignInForm next={next} />
       </div>
-    </main>
+    </AuthShell>
   );
 }

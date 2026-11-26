@@ -144,7 +144,7 @@ export function MobileNav() {
 
                     <div className="border-t border-line p-3">
                       <p className="px-2 text-[0.625rem] leading-relaxed text-subtle">
-                        Phase 1 preview · no live account or ledger connected.
+                        Phase 2 · savings ledger arrives in Phase 4.
                       </p>
                     </div>
                   </motion.nav>

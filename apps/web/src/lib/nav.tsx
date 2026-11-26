@@ -12,6 +12,7 @@ import {
   Receipt,
   Settings,
   Shield,
+  ShieldCheck,
   Target,
   TrendingUp,
   User,
@@ -59,6 +60,7 @@ export const SIDEBAR_GROUPS: ReadonlyArray<{ readonly title: string; readonly it
 
 export const ADMIN_NAV: readonly NavItem[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard, phase: 10 },
+  { label: "Verification", href: "/admin/kyc", icon: ShieldCheck, phase: 2 },
   { label: "Users", href: "/admin/users", icon: Users, phase: 10 },
   { label: "Savings", href: "/admin/savings", icon: PiggyBank, phase: 10 },
   { label: "Loans", href: "/admin/loans", icon: HandCoins, phase: 10 },

@@ -69,7 +69,7 @@ export default async function AdminSectionPage({
           <p className="mt-2 max-w-2xl text-[0.8125rem] leading-relaxed text-body">
             This module requires authenticated staff access, permission checks and audited server
             actions before it can display or change financial data. It is intentionally empty in the
-            Phase 1 shell rather than showing invented figures.
+            The current build shows the shell rather than invented figures.
           </p>
           <Link
             href="/admin"

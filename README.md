@@ -2,10 +2,11 @@
 
 **Save Daily. Build Capacity. Unlock Opportunity.**
 
-A daily savings and credit-eligibility platform for the Nigerian market. This repository is being built in gated phases; see [`docs/phase-1-report.md`](docs/phase-1-report.md) for current status.
+A daily savings and credit-eligibility platform for the Nigerian market. Built in gated phases; see [`docs/phase-2-report.md`](docs/phase-2-report.md) for current status.
 
-> **Status: Phase 1 complete — brand, design system, application shell.**
-> No authentication, payments, ledger or credit logic is live. Nothing in this build moves or represents real money.
+> **Status: Phase 2 complete — accounts, profiles, identity verification, RBAC and RLS.**
+> Authentication and identity are live. No payments, ledger, savings balances or credit decisions exist yet.
+> BVN and NIN are never stored: the database has no column that can hold one.
 
 ---
 
@@ -15,22 +16,25 @@ Requires Node.js 22 or newer (`.nvmrc` pins 22).
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000
+npm run secrets:setup -- "C:\path\to\keys.txt"   # writes .env.local (git-ignored)
+npm run dev                                      # http://localhost:3000
 ```
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Next.js dev server |
-| `npm run build` | Production build (Turbopack) |
-| `npm run start` | Serve the production build |
+| `npm run build` / `start` | Production build and serve |
 | `npm run typecheck` | TypeScript across all workspaces |
-| `npm test` | Unit tests (`packages/core`) |
+| `npm test` | Unit tests (money, time, identity primitives) |
 | `npm run verify` | typecheck → tests → build |
-| `npm run qa` | Headless render probe: overflow + console errors + screenshots |
-| `npm run qa:mobile` | Fixed-size mobile frames at real scale |
-| `npm run qa:sections` | Capture individual page sections |
+| `npm run db:sql -- --file <path>` | Run SQL through the Supabase Management API |
+| `npm run db:test` | 30 RLS/RPC security assertions against the live project |
+| `npm run db:role -- <email> <role>` | Grant/revoke a staff role |
+| `npm run e2e` | Full journey: sign-up → onboarding → identity → staff review → verified |
+| `npm run qa` | Headless render probe: overflow, console errors, screenshots |
+| `npm run check:encoding` | UTF-8 BOM / mojibake guard |
 
-The QA scripts drive the locally installed Edge/Chrome via `playwright-core` — no browser download, no external service. Artefacts land in `.screens/` (git-ignored).
+QA scripts drive the locally installed Edge/Chrome through `playwright-core` — no browser download. Artefacts land in `.screens/` (git-ignored).
 
 ---
 
@@ -38,49 +42,78 @@ The QA scripts drive the locally installed Edge/Chrome via `playwright-core` —
 
 ```
 apps/web/               Next.js App Router application (Track E — Experience)
-  src/app/              routes: marketing, (app), admin, design, legal, api
-  src/components/       brand, ui primitives, layout, dashboard, marketing, finance
-  src/lib/              nav config, calendar, formatting, site copy
-  src/server/           read models and (later) command handlers
-packages/core/          Track M — money and time primitives. No React, no IO, no ambient clock
-packages/config/        shared TypeScript base config
-supabase/               (Phase 2+) migrations, pgTAP tests, seed data
-tools/qa/               headless visual QA scripts
-docs/                   architecture decisions and phase reports
+  src/app/              marketing, (auth), onboarding, app, admin, legal, api
+  src/components/       brand, ui, layout, dashboard, forms, auth, onboarding, admin
+  src/lib/              validation, env, nav, formatting, form state
+  src/server/
+    actions/            server actions (the only write path from the UI)
+    auth/               session, profile, verification helpers
+    integrations/kyc/   verification provider abstraction + deterministic mock
+    security/           HMAC identity digest
+    supabase/           server / browser / service-role clients
+  src/middleware.ts     session refresh + route protection
+packages/core/          Track M — money, time and identity primitives (no React, no IO)
+supabase/migrations/    schema, RLS, functions, grants
+supabase/tests/         security fixtures
+tools/db/               SQL runner, RLS suite, role grant
+tools/qa/               visual probe, mobile frames, Phase 2 E2E
+tools/setup/            key-file → env writer (never prints secrets)
+docs/                   ADRs and phase reports
 ```
 
 ---
 
-## Architectural guardrails
+## Identity protection (the core Phase 2 guarantee)
 
-These are not preferences; later phases depend on them.
+A BVN or NIN travels **browser → server action → vendor API → discarded**.
 
-1. **Two tracks, one-way dependency.** `apps/web` may not compute money. Financial arithmetic lives in `packages/core`, which cannot import React, Next, the Supabase client, or read the clock.
-2. **Money is integer kobo as `bigint`.** No floats enter or leave `packages/core`. Formatting is integer-based so it cannot drift with ICU data.
-3. **Balances are derived.** Once the ledger exists (Phase 4), no balance is a stored, editable number.
-4. **A savings day is an explicit fact.** `business_date` is computed in `Africa/Lagos` at confirmation time and stored; it is never re-derived from `now()`.
-5. **No fabricated financial data.** Empty states are designed product surfaces. Marketing imagery is labelled illustrative and internally consistent.
-6. **Credit is never promised.** Multipliers are described as potential ceilings, in the UI and in copy.
+Persisted, at most:
 
-Full rationale: [`docs/architecture-decisions.md`](docs/architecture-decisions.md).
+| Field | Purpose |
+| --- | --- |
+| `last4` | the only human-readable fragment |
+| `digest` | `HMAC-SHA256(pepper, kind:value)`, for "one number, one account" |
+| `vendor_reference` | the provider's record identifier |
+| `status`, `match_result`, timestamps | the outcome |
+
+Enforced by:
+
+1. **Schema** — `identity_documents` has no column that could hold the number; a test asserts this.
+2. **Privileges** — `anon` and `authenticated` have *no* privilege on the table, and there are **zero RLS policies** on it. Even a compromised RLS policy cannot expose it.
+3. **API shape** — staff read a queue of `kind / last4 / status` through a `SECURITY DEFINER` function. There is no endpoint that returns a full number, for anyone.
+4. **Pepper** — the HMAC key lives only in server env (`KYC_HASH_PEPPER`), never in the database. A database dump cannot be brute-forced against the 11-digit space.
+5. **Logging** — provider errors are logged without payloads; audit entries store masked state only. A test scans every stored row for an 11-digit leak.
+6. **Duplicate control** — a partial unique index on `(kind, digest) WHERE status = 'verified'` prevents the same number verifying two accounts.
+
+Real BVN/NIN values never belong in this repository, its env files, tests or logs. Local development uses a deterministic mock provider that stores nothing.
+
+---
+
+## Security posture (Phase 2)
+
+- Supabase Auth (email + password, email confirmation) with server-side session revalidation in middleware.
+- No client role can INSERT/UPDATE/DELETE any table: RLS plus revoked privileges, writes go through `SECURITY DEFINER` functions or audited server actions.
+- Permission-based staff authorisation (`app.has_permission`) with separation of duties; `/admin` is unreachable without a staff role.
+- Append-only `audit_logs` and `consent_records` enforced by triggers.
+- Identity decisions require a written reason and record actor, before/after state.
+- Security headers, `noindex` on private routes, service-role key confined to server code.
+
+Deferred: CSP, rate limiting beyond auth defaults, TOTP enrolment screen, custom SMTP, PNG PWA icons, service worker.
 
 ---
 
 ## What is intentionally not here yet
 
-- Authentication, sessions, RBAC, RLS (Phase 2)
-- Savings plans, `savings_plan_days`, streaks, calendar data (Phase 3)
-- Payments, ledger, reconciliation (Phase 4)
+- Savings products, plans, contribution days and streaks (Phase 3)
+- Payments, double-entry ledger, reconciliation (Phase 4)
+- Withdrawals (Phase 5)
 - Loan eligibility, applications, disbursement, repayment (Phases 6–9)
-- Admin analytics and permissions (Phase 10)
+- Admin analytics beyond the identity queue (Phase 10)
 - Notifications and support (Phase 11)
-- Service worker / offline caching (Phase 12) — `manifest.webmanifest` exists, caching does not
-- ESLint and CI pipelines (Phase 13 hardening)
-
-The admin console is an **unauthenticated design shell**. It must not be deployed as a live operations tool.
+- Service worker / offline caching (Phase 12)
 
 ---
 
 ## Compliance posture
 
-1kDaily is a technology platform. Customer funds are intended to be held by appropriately authorised financial partners. The codebase must not be used to take deposits, lend, or pool customer savings without the relevant licences and partner agreements. See the disclaimers in `apps/web/src/lib/site.ts` and the draft policies under `/legal`.
+1kDaily is a technology platform. Customer funds are intended to be held by appropriately authorised financial partners. The codebase must not be used to take deposits, lend, or pool customer savings without the relevant licences and partner agreements. See `apps/web/src/lib/site.ts` and the drafts under `/legal`.

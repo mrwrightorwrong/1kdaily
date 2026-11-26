@@ -43,8 +43,9 @@ export function MarketingFooter() {
               credit eligibility.
             </p>
             <p className="mt-6 rounded-xl border border-warn-500/25 bg-warn-50 p-3 text-[0.6875rem] leading-relaxed text-[#7a5300]">
-              Phase 1 preview build. No live accounts, no payments, no credit decisions are being
-              made by this deployment.
+              Phase 2 build. Accounts and identity verification are live; savings payments and the
+              ledger arrive in Phase 4. No money is collected in this deployment, and local
+              verification uses a mock provider.
             </p>
           </div>
 

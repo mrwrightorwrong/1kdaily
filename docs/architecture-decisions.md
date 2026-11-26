@@ -99,3 +99,36 @@ Decisions made in Phase 0 and implemented (or scheduled) in later phases. Each e
 **Why.** Fabricated financial figures in a fintech product destroy trust the first time a user compares them to reality, and they hide genuine loading/empty-state bugs.
 
 **Constrains.** `getDashboardSnapshot()` returns an explicit `no_account` state until Phase 2/4 provide real data.
+
+---
+
+## ADR-011 — Identity numbers are never stored, only fingerprinted
+
+**Decision.** A BVN/NIN is sent browser → server action → vendor → discarded. Persisted: `last4`,
+`HMAC-SHA256(pepper, kind:value)`, vendor reference and status. The table has no column for the
+value, no client privileges and zero RLS policies. Staff read masked data through RPCs only.
+
+**Why.** "Protect the field" invites a future bug that exposes it: a new admin screen, a debug log, a
+`select *`. Removing the value from the data model makes disclosure impossible rather than
+discouraged. The HMAC still supports the one control that genuinely needs the number — preventing
+the same identity verifying two accounts — without keeping it.
+
+**Constrains.** Any future feature needing the raw number (re-verification, bureau checks) must go
+through the vendor again; it cannot be read back. Rotating `KYC_HASH_PEPPER` invalidates duplicate
+detection for existing records, so version the digest (`digest_key_version`) before rotating.
+
+---
+
+## ADR-012 — Server privileges are granted explicitly, never assumed
+
+**Decision.** Every table's grants to `service_role` are declared in a migration, and default
+privileges are set for future tables. The client roles receive SELECT only, where policies allow.
+
+**Why.** During Phase 2, `service_role` inherited only trigger/reference privileges from the platform
+defaults, so the first production-shaped write failed with SQLSTATE 42501 — invisible in local tests
+that ran as `postgres`. Privileges are part of the schema contract, so they belong in version control
+and must be asserted by tests.
+
+**Constrains.** New tables must either add explicit grants or rely on the `alter default privileges`
+that migration 05 installs. A migration that creates a table and forgets both will fail at runtime,
+not at review time.

@@ -1,7 +1,7 @@
 import { fromKobo, type Kobo } from "@1kdaily/core";
 
 /**
- * Marketing content for the Phase 1 public surface.
+ * Marketing content for the public surface.
  *
  * Plan figures here are *illustrative configurations* for the landing page.
  * Phase 3 loads real, administrator-managed products from `savings_products`.

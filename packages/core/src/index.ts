@@ -14,6 +14,17 @@ export {
 export type { FormatCompactOptions, FormatKoboOptions, Kobo } from "./money";
 
 export {
+  IDENTITY_KINDS,
+  IDENTITY_LENGTH,
+  identityLast4,
+  isIdentityKind,
+  isValidIdentityNumber,
+  maskIdentityNumber,
+  normalizeIdentityNumber,
+} from "./identity";
+export type { IdentityKind } from "./identity";
+
+export {
   BUSINESS_TIME_ZONE,
   addDays,
   asBusinessDate,

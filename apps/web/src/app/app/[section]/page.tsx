@@ -193,8 +193,8 @@ export default async function SectionPlaceholderPage({
           <div className="mt-5 rounded-xl border border-line bg-canvas p-4">
             <p className="text-[0.75rem] font-medium text-ink-900">Why this page exists now</p>
             <p className="mt-1 text-[0.75rem] leading-relaxed text-muted">
-              Phase 1 ships the shell, design system and navigation. Every destination resolves to a
-              real page that states its status — no dead links and no mocked financial data.
+              The shell ships ahead of the data. Every destination resolves to a real page that
+              states its status — no dead links and no mocked financial data.
             </p>
           </div>
 

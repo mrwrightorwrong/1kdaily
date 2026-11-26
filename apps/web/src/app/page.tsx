@@ -47,7 +47,7 @@ export default function LandingPage() {
           <div className="relative mx-auto grid w-full max-w-6xl gap-14 px-5 pb-16 pt-12 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10 lg:pb-24 lg:pt-20">
             <div className="animate-rise">
               <Badge variant="brand" className="mb-5">
-                Phase 1 preview
+                Phase 2 · identity live
               </Badge>
 
               <h1 className="text-balance text-[2.5rem] font-semibold leading-[1.04] tracking-[-0.03em] text-ink-900 sm:text-[3.25rem] lg:text-[3.5rem]">
@@ -66,8 +66,8 @@ export default function LandingPage() {
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="/app" className={cn(buttonVariants({ variant: "primary", size: "lg" }))}>
-                  Explore the dashboard
+                <Link href="/sign-up" className={cn(buttonVariants({ variant: "primary", size: "lg" }))}>
+                  Create your account
                   <ArrowRight className="size-4" />
                 </Link>
                 <Link
@@ -526,12 +526,12 @@ export default function LandingPage() {
                 Start with one day. Let the record do the rest.
               </h2>
               <p className="mx-auto mt-3 max-w-md text-[0.875rem] leading-relaxed text-white/60">
-                Explore the Phase 1 dashboard shell — every figure is empty until a real ledger
-                exists. That is the point.
+                Create an account, complete your profile and verify your identity. Savings figures
+                stay at zero until a real ledger exists — that is the point.
               </p>
               <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <Link href="/app" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>
-                  Open dashboard preview
+                <Link href="/sign-up" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>
+                  Create your account
                   <ArrowRight className="size-4" />
                 </Link>
                 <Link href="/design" className={cn(buttonVariants({ variant: "onDark", size: "lg" }))}>
@@ -550,3 +550,4 @@ export default function LandingPage() {
     </div>
   );
 }
+
