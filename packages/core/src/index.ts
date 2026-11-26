@@ -60,3 +60,12 @@ export type {
   PlanProgress,
   PlanStatus,
 } from "./savings";
+
+export { DEFAULT_POLICY, assessEligibility } from "./eligibility";
+export type {
+  BindingConstraint,
+  EligibilityAssessment,
+  EligibilityInput,
+  EligibilityPolicy,
+  RepaymentHistory,
+} from "./eligibility";
