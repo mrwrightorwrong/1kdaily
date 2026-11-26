@@ -175,3 +175,72 @@
     }
   }
 }
+
+/* ==========================================================================
+   Theme - semantic tokens switch; brand hues stay recognisable in both modes.
+   ========================================================================== */
+@theme inline {
+  --color-canvas: var(--kd-canvas);
+  --color-surface: var(--kd-surface);
+  --color-body: var(--kd-body);
+  --color-muted: var(--kd-muted);
+  --color-subtle: var(--kd-subtle);
+  --color-line: var(--kd-line);
+  --color-line-strong: var(--kd-line-strong);
+  --color-ink-900: var(--kd-ink-900);
+  --color-ink-800: var(--kd-ink-800);
+  --color-ink-700: var(--kd-ink-700);
+  --color-ink-600: var(--kd-ink-600);
+}
+
+:root {
+  --kd-canvas: #f6f8fc;
+  --kd-surface: #ffffff;
+  --kd-body: #172033;
+  --kd-muted: #64748b;
+  --kd-subtle: #94a3b8;
+  --kd-line: #e4e9f2;
+  --kd-line-strong: #cbd5e1;
+  --kd-ink-900: #0b1739;
+  --kd-ink-800: #12224d;
+  --kd-ink-700: #1b2f63;
+  --kd-ink-600: #2b427c;
+  color-scheme: light;
+}
+
+.dark {
+  --kd-canvas: #0a1120;
+  --kd-surface: #111a2e;
+  --kd-body: #e7ecf7;
+  --kd-muted: #9aa8c0;
+  --kd-subtle: #6f7f9c;
+  --kd-line: #22304a;
+  --kd-line-strong: #33456a;
+  --kd-ink-900: #f1f5ff;
+  --kd-ink-800: #e3eaf9;
+  --kd-ink-700: #d2dcf2;
+  --kd-ink-600: #bcc9e6;
+  color-scheme: dark;
+}
+
+/* Contrast repairs for literal values used inside components. */
+.dark .bg-white { background-color: var(--kd-surface); }
+.dark .bg-white\/70 { background-color: rgba(255, 255, 255, 0.07); }
+.dark .bg-canvas { background-color: var(--kd-canvas); }
+.dark .bg-brand-50 { background-color: #0f2a20; }
+.dark .bg-brand-100 { background-color: #14382a; }
+.dark .text-brand-700 { color: #6ee7b7; }
+.dark .text-brand-800 { color: #a7f3d0; }
+.dark .bg-danger-50 { background-color: #3a1618; }
+.dark .bg-warn-50 { background-color: #3a2c0d; }
+.dark .text-\[\#7a5300\] { color: #f5cf7a; }
+.dark .text-\[\#8f1d1d\] { color: #f6a6a6; }
+.dark .bg-gold-100\/60 { background-color: rgba(245, 185, 66, 0.12); }
+.dark .bg-gold-100 { background-color: #3a2f12; }
+.dark .text-\[\#7a5605\] { color: #f0c96b; }
+
+/* Navy surfaces (sidebar, dark buttons, avatars) must stay dark in both modes. */
+.dark .bg-ink-900 { background-color: #0b1739; }
+.dark .bg-ink-800 { background-color: #12224d; }
+.dark .bg-ink-900\/5 { background-color: rgba(255, 255, 255, 0.06); }
+

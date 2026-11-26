@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Bell, CircleHelp } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function AppTopbar({ initials }: { readonly initials: string }) {
   return (
@@ -18,6 +19,7 @@ export function AppTopbar({ initials }: { readonly initials: string }) {
       </div>
 
       <div className="flex items-center gap-1.5">
+        <ThemeToggle />
         <Link
           href="/app/support"
           aria-label="Help and support"
