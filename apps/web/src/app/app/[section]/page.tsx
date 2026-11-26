@@ -123,7 +123,7 @@ export const dynamicParams = false;
 export function generateStaticParams() {
   // Routes that now have real implementations must not also be prerendered as
   // placeholders.
-  const implemented = new Set(["savings", "plans", "calendar"]);
+  const implemented = new Set(["savings", "plans", "calendar", "eligibility"]);
   return PRIMARY_NAV.filter(
     (item) => item.href !== "/app" && !implemented.has(item.href.replace("/app/", "")),
   ).map((item) => ({
