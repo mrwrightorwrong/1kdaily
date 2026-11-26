@@ -4,8 +4,8 @@
 
 A daily savings and credit-eligibility platform for the Nigerian market. Built in gated phases; see [`docs/phase-2-report.md`](docs/phase-2-report.md) for current status.
 
-> **Status: Phase 3 complete — savings plans, schedules, calendar, streaks and milestones.**
-> Authentication, identity verification and the plan engine are live. Contributions, the ledger and credit decisions are not.
+> **Status: Phase 4 (first increment) — double-entry ledger and Paystack test-mode payments.**
+> The money core is live and tested; a successful sandbox payment still needs to be completed once to prove the credit path end-to-end.
 > BVN and NIN are never stored: the database has no column that can hold one.
 
 ---

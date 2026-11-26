@@ -16,7 +16,9 @@ import { Money } from "@/components/finance/money";
 import { PlanLifecycleActions } from "@/components/savings/plan-actions";
 import { PlanCalendar } from "@/components/savings/plan-calendar";
 import { ReminderForm } from "@/components/savings/reminder-form";
+import { SaveNowForm } from "@/components/savings/save-now-form";
 import { PlanStatusBadge } from "@/components/savings/ui";
+import { isTestMode } from "@/server/payments/config";
 import { Badge, Card, CardContent, CardHeader, CardTitle, Progress } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
 import { requireProfile } from "@/server/auth/session";
@@ -119,6 +121,25 @@ export default async function PlanDetailPage({
           )}
         >
           {notice.text}
+        </div>
+      ) : null}
+
+      {query.paid ? (
+        <div
+          role="status"
+          className="rounded-xl border border-brand-200 bg-brand-50 px-3.5 py-3 text-[0.75rem] leading-relaxed text-brand-800"
+        >
+          Payment verified and credited. Your schedule has been updated.
+        </div>
+      ) : null}
+
+      {query.pending ? (
+        <div
+          role="status"
+          className="rounded-xl border border-warn-500/25 bg-warn-50 px-3.5 py-3 text-[0.75rem] leading-relaxed text-[#7a5300]"
+        >
+          We have not received confirmation from the provider yet. This page will update once the
+          payment is verified — nothing is credited before that.
         </div>
       ) : null}
 
@@ -290,6 +311,25 @@ export default async function PlanDetailPage({
               <PlanLifecycleActions planId={plan.id} status={plan.status} />
             </CardContent>
           </Card>
+
+          {plan.status === "active" ? (
+            <Card>
+              <CardHeader>
+                <div>
+                  <CardTitle>Save now</CardTitle>
+                  <p className="mt-1 text-[0.75rem] text-muted">Verified payment only.</p>
+                </div>
+                <Badge variant="brand">Paystack</Badge>
+              </CardHeader>
+              <CardContent>
+                <SaveNowForm
+                  planId={plan.id}
+                  dailyAmountKobo={BigInt(plan.daily_amount_kobo)}
+                  testMode={isTestMode()}
+                />
+              </CardContent>
+            </Card>
+          ) : null}
 
           <Card>
             <CardHeader>

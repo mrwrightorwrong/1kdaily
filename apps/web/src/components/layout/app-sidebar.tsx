@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { signOutAction } from "@/server/actions/auth";
-import { SIDEBAR_GROUPS } from "@/lib/nav";
+import { CURRENT_PHASE, SIDEBAR_GROUPS } from "@/lib/nav";
 import { cn } from "@/lib/cn";
 
 function isActive(pathname: string, href: string): boolean {
@@ -59,7 +59,7 @@ export function AppSidebar({
                         aria-hidden
                       />
                       <span className="truncate">{item.label}</span>
-                      {item.phase > 2 ? (
+                      {item.phase > CURRENT_PHASE ? (
                         <span
                           className="ml-auto rounded-full bg-canvas px-1.5 py-0.5 text-[0.5rem] font-semibold text-subtle ring-1 ring-line"
                           title={`Enabled in Phase ${item.phase}`}

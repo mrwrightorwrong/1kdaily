@@ -2639,3 +2639,1596 @@ Build it with exceptional design.
 Build it to scale.
 
 **1kDaily — Save Daily. Build Capacity. Unlock Opportunity.**
+
+
+
+
+## PROJECT
+**1kDaily — Centralized SMS Gateway, Messaging Automation & Notification Infrastructure**
+
+Implement a complete, production-oriented SMS Gateway Management System inside the existing 1kDaily application.
+
+This system must allow 1kDaily administrators to configure SMS providers, control messaging costs, manage templates, send OTPs and transactional messages, monitor delivery, track SMS consumption and switch providers without changing the application’s core business logic.
+
+---
+
+# 1. FIRST: AUDIT THE EXISTING PROJECT
+
+Before writing or modifying any code:
+
+- Inspect the entire existing 1kDaily project.
+- Identify the existing framework, architecture, authentication, database, admin dashboard, user dashboard, notification modules and API structure.
+- Inspect the existing database schema and Supabase configuration.
+- Identify existing notification functionality, if any.
+- Identify existing user roles and admin permissions.
+- Identify all modules that may require SMS functionality, including:
+  - User registration.
+  - Login and authentication.
+  - OTP verification.
+  - Password reset.
+  - Savings plan activation.
+  - Savings contributions.
+  - Missed savings reminders.
+  - Savings maturity.
+  - Withdrawal requests and notifications.
+  - Loan applications.
+  - Loan approvals and rejections.
+  - Loan disbursement.
+  - Loan repayments.
+  - Repayment reminders.
+  - Guarantor requests.
+  - Guarantor approvals and decisions.
+  - Collateral updates.
+  - Account security alerts.
+  - Administrative notifications.
+- Identify any existing email, push notification or notification preferences infrastructure.
+
+### Important
+
+Do not rebuild the existing application.
+
+Do not modify existing functionality unnecessarily.
+
+Do not create duplicate database tables, duplicate notification engines or competing services if an existing structure can safely be extended.
+
+Present an implementation plan if major architectural changes are required.
+
+---
+
+# 2. SMS SYSTEM ARCHITECTURE
+
+Build a centralized SMS infrastructure with a provider-independent architecture.
+
+The application must not communicate directly with individual SMS providers from scattered components or business modules.
+
+Implement a centralized SMS service layer.
+
+### Recommended architecture
+
+- SMS Service Core.
+- SMS Provider Adapter Interface.
+- SmartSMS Provider Adapter.
+- Termii Provider Adapter.
+- Future Provider Adapter Support.
+- SMS Template Engine.
+- SMS Queue and Processing Engine.
+- SMS Delivery Tracking.
+- SMS Retry Engine.
+- SMS Cost Tracking.
+- SMS Usage Analytics.
+- SMS Webhook Handler.
+- SMS Gateway Admin Management.
+- SMS Logs and Audit Trail.
+
+All SMS requests must pass through the centralized messaging service.
+
+Example architecture:
+
+User Action → Business Module → Notification Service → SMS Service → Provider Adapter → SMS Provider API → Delivery Tracking.
+
+The business modules must not be dependent on a specific provider.
+
+---
+
+# 3. SMS PROVIDER MANAGEMENT
+
+Create a dedicated SMS Gateway Management module in the admin dashboard.
+
+Administrators must be able to configure multiple SMS providers.
+
+## Initial providers
+
+### A. SmartSMS
+
+Implement a SmartSMS provider adapter.
+
+The adapter should support the provider's documented capabilities, such as:
+
+- Sending SMS.
+- Transactional messaging.
+- OTP delivery where supported.
+- Sender ID.
+- Delivery status retrieval or callbacks, where supported.
+- API balance retrieval, where supported.
+- Provider message identifiers.
+- Error handling.
+
+Use the provider's official API documentation to implement the integration.
+
+Website:
+
+https://www.smartsms.ng/
+
+Do not guess undocumented endpoints, response structures or authentication methods.
+
+### B. Termii
+
+Implement a Termii provider adapter.
+
+Support documented features including:
+
+- Sending SMS.
+- OTP or verification messaging where supported.
+- Sender ID.
+- Delivery tracking where supported.
+- Message status retrieval.
+- Provider message IDs.
+- API errors.
+- Account balance retrieval where supported.
+
+Website:
+
+https://termii.com/
+
+Use the official API documentation.
+
+Do not invent endpoints or undocumented functionality.
+
+### C. Future SMS Providers
+
+Design the architecture to support adding future providers without rewriting the SMS service.
+
+The adapter interface should be reusable.
+
+---
+
+# 4. SMS GATEWAY ADMIN DASHBOARD
+
+Create a beautiful, professional and responsive SMS management dashboard inside the existing admin dashboard.
+
+Use the existing 1kDaily branding and design system.
+
+The SMS dashboard should contain:
+
+## Overview cards
+
+Display:
+
+- Total SMS sent today.
+- SMS sent this month.
+- SMS delivered.
+- SMS failed.
+- SMS pending.
+- SMS balance or credit, where available.
+- Estimated SMS expenditure.
+- Delivery success rate.
+- Active SMS provider.
+
+All statistics must be based on real database records and verified provider data.
+
+Do not display fabricated statistics.
+
+## Charts
+
+Implement:
+
+- SMS usage trend.
+- Daily SMS volume.
+- Monthly SMS expenditure.
+- SMS delivery success vs failure.
+- SMS usage by category.
+- SMS usage by provider.
+
+Allow filtering by:
+
+- Today.
+- Last 7 days.
+- Last 30 days.
+- Last 90 days.
+- Custom date range.
+
+Charts should be visually attractive, clean and responsive.
+
+---
+
+# 5. SMS PROVIDER CONFIGURATION PAGE
+
+Create an admin page where administrators can manage SMS providers.
+
+For each provider, display:
+
+- Provider name.
+- Provider logo or icon.
+- Provider status.
+- Connection status.
+- Configuration status.
+- Active/inactive status.
+- Primary or secondary status.
+- Last connection test.
+- API balance, if supported.
+- Estimated provider cost, where available.
+- Last successful SMS delivery.
+
+## Provider configuration
+
+Administrators should be able to configure:
+
+- Provider API key.
+- API secret, if required.
+- Sender ID.
+- API endpoint, if supported and necessary.
+- Provider-specific settings.
+- Provider enabled/disabled status.
+- Primary provider designation.
+- Backup provider designation.
+
+Secrets must never be exposed after saving.
+
+When viewing configuration, show masked credentials.
+
+For example:
+
+`••••••••••••••••••••`
+
+Only authorized administrators may configure providers.
+
+Credentials must be stored securely using server-side secret handling or appropriate encrypted storage.
+
+Never expose API keys in client-side code, public API responses, browser storage, frontend bundles or logs.
+
+---
+
+# 6. PRIMARY AND BACKUP PROVIDER SYSTEM
+
+Implement intelligent provider selection.
+
+Administrators should be able to:
+
+- Select the primary SMS provider.
+- Select a secondary SMS provider.
+- Enable or disable automatic failover.
+- Select specific message categories that may use backup providers.
+- Control provider failover policies.
+
+### Example
+
+Primary provider: SmartSMS
+
+Secondary provider: Termii
+
+If SmartSMS experiences a technical failure, the system may automatically route eligible messages through Termii.
+
+However:
+
+- Do not automatically retry every failure.
+- Do not retry permanent failures such as invalid numbers.
+- Do not resend OTPs blindly.
+- Do not duplicate SMS messages due to timeouts.
+- Use idempotency or appropriate duplicate prevention mechanisms.
+- Maintain detailed logs of provider switching.
+- Respect configured cost and message category policies.
+
+Provider failover should only happen when the error is classified as eligible for failover.
+
+---
+
+# 7. SMS SENDER ID MANAGEMENT
+
+Create a Sender ID management section.
+
+Allow authorized administrators to:
+
+- Configure sender IDs.
+- Select the default sender ID.
+- Assign sender IDs to specific message categories where supported.
+- View approval status.
+- View provider restrictions.
+- Manage sender ID availability.
+
+Default proposed sender ID:
+
+`1kDaily`
+
+Do not assume the sender ID is automatically approved.
+
+Allow the administrator to configure a sender ID approved by the SMS provider.
+
+The system must support sender ID restrictions imposed by providers, networks or applicable regulations.
+
+---
+
+# 8. SMS TEMPLATE MANAGEMENT
+
+Build a complete SMS Template Management module.
+
+Administrators must be able to create, edit, activate, deactivate and preview SMS templates.
+
+## Template fields
+
+Each template should contain:
+
+- Template name.
+- Template identifier.
+- Message category.
+- Description.
+- SMS body.
+- Template variables.
+- Sender ID selection, where supported.
+- Active status.
+- Created by.
+- Last modified.
+- Version history, where practical.
+
+## Template categories
+
+Create categories such as:
+
+- Authentication.
+- OTP.
+- Security.
+- Savings.
+- Payments.
+- Withdrawals.
+- Loans.
+- Repayments.
+- Guarantors.
+- Collateral.
+- Reminders.
+- System alerts.
+- Marketing, if permitted and consented to.
+
+## Dynamic variables
+
+Support template variables such as:
+
+`{{first_name}}`
+
+`{{full_name}}`
+
+`{{amount}}`
+
+`{{reference}}`
+
+`{{plan_name}}`
+
+`{{due_date}}`
+
+`{{loan_amount}}`
+
+`{{repayment_amount}}`
+
+`{{balance}}`
+
+`{{otp_code}}`
+
+`{{transaction_date}}`
+
+`{{app_name}}`
+
+`{{support_phone}}`
+
+`{{support_email}}`
+
+Build a secure template rendering engine.
+
+Only approved variables should be allowed.
+
+Do not allow templates to execute arbitrary JavaScript, SQL or code.
+
+## Template preview
+
+Allow administrators to preview the SMS using sample data.
+
+Display:
+
+- Rendered message.
+- Character count.
+- Estimated SMS segments.
+- Estimated message cost, if configured.
+- Sender ID.
+
+Support Unicode and Nigerian-language characters appropriately.
+
+SMS segmentation estimates must account for the encoding rules used by the provider, including Unicode messages and concatenated messages.
+
+Do not assume every message costs one SMS unit.
+
+---
+
+# 9. CREATE DEFAULT SMS TEMPLATES
+
+Create the following initial templates.
+
+These templates must be editable by administrators.
+
+### 1. Welcome Message
+
+Hello {{first_name}}, welcome to 1kDaily! Your financial journey starts here. Build your savings discipline and grow your financial capacity. Thank you for joining us.
+
+### 2. OTP Verification
+
+Your 1kDaily verification code is {{otp_code}}. It expires in {{expiry_minutes}} minutes. Do not share this code with anyone.
+
+### 3. Password Reset
+
+Your 1kDaily password reset verification code is {{otp_code}}. If you did not request this, please ignore this message.
+
+### 4. Savings Contribution Confirmation
+
+Hello {{first_name}}, we have confirmed your savings contribution of ₦{{amount}} to your {{plan_name}} plan. Reference: {{reference}}. Thank you for saving with 1kDaily.
+
+### 5. Failed Savings Contribution
+
+Hello {{first_name}}, we could not confirm your recent savings contribution. Please check your payment status or contact support if you need assistance.
+
+### 6. Savings Reminder
+
+Hello {{first_name}}, your savings journey matters. You have a scheduled contribution for your {{plan_name}} plan. Continue building your financial discipline with 1kDaily.
+
+### 7. Savings Milestone
+
+Congratulations {{first_name}}! You have reached a savings milestone of ₦{{amount}} on 1kDaily. Keep building your financial capacity.
+
+### 8. Savings Plan Maturity
+
+Congratulations {{first_name}}! Your {{plan_name}} savings plan has reached maturity. Log in to your 1kDaily account to review your available options.
+
+### 9. Withdrawal Request
+
+Hello {{first_name}}, your withdrawal request of ₦{{amount}} has been received. Reference: {{reference}}. We will notify you when its status changes.
+
+### 10. Withdrawal Approval
+
+Hello {{first_name}}, your withdrawal request of ₦{{amount}} has been approved. Reference: {{reference}}. Please check your account for details.
+
+### 11. Loan Application Received
+
+Hello {{first_name}}, your loan application of ₦{{loan_amount}} has been received and is being reviewed. Reference: {{reference}}.
+
+### 12. Loan Approval
+
+Congratulations {{first_name}}, your loan application has been approved. Please log in to 1kDaily to review the loan terms and required next steps.
+
+### 13. Loan Rejection
+
+Hello {{first_name}}, we have reviewed your loan application. Unfortunately, it was not approved at this time. Please check your account for further information.
+
+### 14. Loan Disbursement
+
+Hello {{first_name}}, your approved loan of ₦{{amount}} has been disbursed. Reference: {{reference}}. Please review your repayment schedule in your 1kDaily account.
+
+### 15. Repayment Reminder
+
+Hello {{first_name}}, your 1kDaily loan repayment of ₦{{repayment_amount}} is due on {{due_date}}. Please make your repayment on time.
+
+### 16. Repayment Confirmation
+
+Hello {{first_name}}, your loan repayment of ₦{{amount}} has been confirmed. Reference: {{reference}}. Thank you for meeting your financial commitment.
+
+### 17. Guarantor Request
+
+Hello {{full_name}}, {{applicant_name}} has requested that you serve as a guarantor for a 1kDaily loan application. Please log in to review and respond. Your consent is required.
+
+### 18. Guarantor Approval Notification
+
+Hello {{first_name}}, your guarantor response has been recorded successfully. Thank you for completing the process.
+
+### 19. Security Alert
+
+Hello {{first_name}}, a security-related activity occurred on your 1kDaily account. If you did not initiate this activity, contact support immediately.
+
+### 20. Account Notification
+
+Hello {{first_name}}, there is an important update concerning your 1kDaily account. Log in to your account to review the notification.
+
+These are initial templates, not mandatory final wording.
+
+Ensure all messages are accurate and do not imply that a loan is approved, a payment is confirmed or funds have been received unless the actual status supports it.
+
+---
+
+# 10. SMS CATEGORY AND PRIORITY SYSTEM
+
+Every SMS must have a defined category.
+
+Implement messaging categories such as:
+
+- OTP and authentication.
+- Account security.
+- Financial transaction confirmation.
+- Savings notifications.
+- Loan notifications.
+- Repayment notifications.
+- Guarantor notifications.
+- Administrative notifications.
+- Marketing messages.
+
+Each category should have configurable priority.
+
+### Priority levels
+
+- Critical.
+- High.
+- Normal.
+- Low.
+
+OTP and security messages should receive appropriate priority.
+
+Financial transaction confirmations must be triggered only by verified financial events.
+
+Marketing messages must not share the same unrestricted sending logic as security and transaction messages.
+
+---
+
+# 11. SMS QUEUE SYSTEM
+
+Implement a robust asynchronous SMS queue.
+
+SMS delivery must not block critical application operations unnecessarily.
+
+## Queue functionality
+
+- Queue SMS requests.
+- Process SMS asynchronously.
+- Track pending messages.
+- Track processing messages.
+- Track completed messages.
+- Track failed messages.
+- Track scheduled messages.
+- Support retry policies.
+- Support priority.
+- Support queue monitoring.
+- Support worker processing.
+- Support provider-specific rate limits.
+- Prevent duplicate sends.
+- Support idempotency.
+- Support dead-letter or permanently failed messages.
+
+Do not rely on fragile frontend timers or browser-based processing.
+
+Use a backend-compatible queue and worker architecture appropriate to the existing deployment environment.
+
+If the current deployment does not support persistent background workers, implement a reliable alternative compatible with the existing hosting architecture.
+
+Do not silently assume Vercel server functions can run indefinite workers.
+
+Consider scheduled processing, bounded server-side execution, database-backed queues, cron-based processing or other deployment-compatible mechanisms.
+
+Document the limitations of the selected approach.
+
+---
+
+# 12. RETRY SYSTEM
+
+Implement a controlled SMS retry engine.
+
+Retry only appropriate temporary failures.
+
+Examples of potentially retryable failures:
+
+- Temporary provider outage.
+- Network timeout.
+- Temporary rate limit.
+- Transient provider error.
+- Temporary delivery failure where provider status indicates retry is appropriate.
+
+Examples of non-retryable failures:
+
+- Invalid phone number.
+- Invalid sender ID.
+- Invalid API credentials.
+- Rejected message.
+- Unsupported destination.
+- Permanent provider rejection.
+
+## Retry configuration
+
+Administrators should be able to configure:
+
+- Maximum retry attempts.
+- Retry delay.
+- Retry interval policy.
+- Provider failover.
+- Eligible categories.
+- Retry status.
+
+Implement exponential backoff or another appropriate bounded retry strategy.
+
+Prevent infinite retries.
+
+Prevent repeated SMS delivery caused by duplicate queue processing.
+
+---
+
+# 13. SMS DELIVERY TRACKING
+
+Create detailed SMS delivery tracking.
+
+Track each SMS message with fields such as:
+
+- SMS ID.
+- User ID, where applicable.
+- Recipient.
+- Category.
+- Template ID.
+- Provider.
+- Provider message ID.
+- Message status.
+- Message body snapshot, subject to retention and privacy controls.
+- Number of segments.
+- Estimated cost.
+- Actual cost if available.
+- Currency.
+- Attempt count.
+- Sent timestamp.
+- Provider acceptance timestamp.
+- Delivery timestamp.
+- Failure timestamp.
+- Error code.
+- Error message.
+- Reference.
+- Related transaction ID.
+- Related business event.
+- Created timestamp.
+
+Statuses should include:
+
+- Draft.
+- Pending.
+- Processing.
+- Submitted.
+- Sent.
+- Delivered.
+- Failed.
+- Cancelled.
+- Retry scheduled.
+- Expired.
+
+Do not treat provider acceptance as confirmed delivery.
+
+Where provider delivery reports are available, update status through the delivery report mechanism.
+
+---
+
+# 14. SMS WEBHOOKS AND DELIVERY REPORTS
+
+Implement secure webhook handlers for SMS delivery reports where supported.
+
+The webhook system should:
+
+- Validate provider-specific authenticity where available.
+- Validate signatures.
+- Validate payload structure.
+- Prevent replay or duplicate processing.
+- Record webhook events.
+- Update SMS delivery status.
+- Track provider message IDs.
+- Reject unauthorized requests.
+- Handle delayed delivery reports.
+- Handle unexpected status values.
+- Preserve webhook audit records.
+
+Never trust webhook payloads blindly.
+
+Do not update financial records based on SMS webhooks.
+
+SMS delivery is a communication event, not a financial event.
+
+---
+
+# 15. SMS COST MANAGEMENT
+
+Build SMS cost tracking.
+
+The admin should be able to configure estimated pricing for each provider.
+
+Pricing should be configurable, not hardcoded.
+
+Support:
+
+- Cost per SMS segment.
+- Provider-specific pricing.
+- Destination-specific pricing if needed.
+- Currency.
+- Pricing effective dates.
+- Pricing tiers, if supported.
+- Manual cost adjustment by authorized administrators.
+
+## Cost calculations
+
+Track:
+
+- Estimated cost per message.
+- Cost per segment.
+- Estimated total expenditure.
+- Provider expenditure.
+- Cost by category.
+- Cost per day.
+- Cost per month.
+- Cost per user, where appropriate.
+- Failed message costs, where known.
+- OTP expenditure.
+- Transactional expenditure.
+- Marketing expenditure.
+
+Use actual provider billing information when available.
+
+Clearly distinguish estimated costs from confirmed provider billing.
+
+---
+
+# 16. SMS CREDIT AND BALANCE MONITORING
+
+Where the provider supports account balance retrieval, implement provider balance monitoring.
+
+Display:
+
+- Provider balance.
+- Last balance check.
+- Provider account status.
+- Low-balance alert.
+- Configurable minimum balance.
+- Balance history, if practical.
+
+Allow administrators to configure a low-balance threshold.
+
+Create dashboard notifications when a provider balance reaches the threshold.
+
+Do not fabricate provider balance data.
+
+If a provider API does not support balance retrieval, show the feature as unsupported instead of displaying false information.
+
+---
+
+# 17. SMS USAGE CONTROL AND BUDGET LIMITS
+
+Implement SMS budget controls.
+
+Administrators should be able to set:
+
+- Daily SMS budget.
+- Monthly SMS budget.
+- Maximum SMS messages per user per day.
+- Maximum OTP requests.
+- Maximum OTP requests per phone number.
+- Maximum OTP requests per IP, where technically appropriate.
+- Maximum retry attempts.
+- Maximum message segments.
+- Maximum bulk messaging volume.
+- Marketing message restrictions.
+
+Implement alerts when:
+
+- Daily usage reaches 50%.
+- Daily usage reaches 75%.
+- Daily usage reaches 90%.
+- Daily usage reaches 100%.
+- Monthly usage reaches configured thresholds.
+
+Allow administrators to configure threshold values.
+
+Do not make budget controls unintentionally block essential account security messages without a clearly defined policy.
+
+Critical security and authentication messaging should have a separate policy from optional promotional messaging.
+
+---
+
+# 18. SMS LOGS MANAGEMENT
+
+Create a complete SMS logs page.
+
+Administrators should be able to search and filter by:
+
+- Phone number.
+- User.
+- Category.
+- Provider.
+- Status.
+- Template.
+- Date range.
+- Reference.
+- Related transaction.
+- Failure reason.
+
+## SMS log detail view
+
+Display:
+
+- Recipient.
+- Message category.
+- Message preview.
+- Provider.
+- Provider message ID.
+- Status history.
+- Delivery timeline.
+- Number of SMS segments.
+- Cost estimate.
+- Actual cost, where available.
+- Retry attempts.
+- Error details.
+- Related account activity.
+- Related transaction.
+- Creation date.
+- Delivery date.
+
+Sensitive information must be masked where appropriate.
+
+OTP values and sensitive authentication details must never be retained in logs after the relevant security window.
+
+---
+
+# 19. ADMIN SMS TESTING TOOL
+
+Create an SMS testing interface.
+
+Authorized administrators can:
+
+- Enter a test phone number.
+- Select a provider.
+- Select sender ID.
+- Enter or select a template.
+- Preview the message.
+- Send test SMS.
+- View delivery status.
+- View provider response.
+- View estimated segment count.
+- View estimated cost.
+
+Test messages must be clearly marked as test messages in the admin interface.
+
+Testing must not interfere with actual financial transaction records.
+
+Require appropriate admin permission and rate limits.
+
+---
+
+# 20. BULK SMS MANAGEMENT
+
+Implement controlled bulk SMS functionality if compatible with the application's operational and regulatory requirements.
+
+Allow administrators to:
+
+- Create a campaign.
+- Select approved recipients.
+- Filter recipients by appropriate criteria.
+- Select template.
+- Preview.
+- Estimate message segments.
+- Estimate cost.
+- Schedule sending.
+- Cancel pending campaigns.
+- Monitor campaign progress.
+
+### Possible filters
+
+- Active users.
+- Verified users.
+- Users with active savings plans.
+- Users with matured savings plans.
+- Users with repayment due.
+- Users with specific preferences.
+
+Bulk messaging must not expose sensitive financial information unnecessarily.
+
+Marketing messages require appropriate consent and opt-out handling.
+
+Implement:
+
+- Consent tracking.
+- Marketing opt-out.
+- Recipient exclusion.
+- Unsubscribe management.
+- Campaign limits.
+- Approval workflow where necessary.
+- Rate limits.
+- Audit trail.
+
+Do not send unsolicited marketing SMS.
+
+Do not allow marketing messages to bypass user consent or regulatory requirements.
+
+---
+
+# 21. USER SMS PREFERENCES
+
+Create user notification preferences.
+
+Users should be able to configure their preferences for non-essential notifications.
+
+Possible preference categories:
+
+- Savings reminders.
+- Savings milestones.
+- Promotional messages.
+- Product updates.
+- General announcements.
+
+However, distinguish optional communications from essential service messages.
+
+Where legally permissible, account security, OTP and necessary transactional notifications should follow a separate mandatory communication policy.
+
+Allow users to:
+
+- View their notification preferences.
+- Opt out of permitted promotional messaging.
+- Update their phone number through a secure verification process.
+- View relevant notification history, where appropriate.
+
+Do not allow users to opt out of communications that are necessary for the security, operation or legally required administration of their accounts, unless the applicable law permits an alternative.
+
+---
+
+# 22. INTEGRATE SMS INTO EXISTING 1kDaily MODULES
+
+Integrate SMS with the existing application through a centralized notification service.
+
+Do not independently implement SMS logic in each module.
+
+## Authentication
+
+- OTP.
+- Account verification.
+- Password reset.
+- Login security alerts.
+- Phone number changes.
+
+## Savings
+
+- Contribution confirmation.
+- Contribution failure.
+- Savings reminder.
+- Savings milestones.
+- Plan activation.
+- Plan maturity.
+
+## Withdrawals
+
+- Withdrawal request received.
+- Withdrawal approval.
+- Withdrawal rejection.
+- Withdrawal processing update.
+- Withdrawal completion.
+
+## Loans
+
+- Application received.
+- Application under review.
+- Approval.
+- Rejection.
+- Disbursement.
+- Repayment reminders.
+- Overdue reminders, where lawful and appropriate.
+
+## Guarantors
+
+- Guarantor request.
+- Guarantor reminder.
+- Guarantor approval.
+- Guarantor rejection.
+- Request expiry.
+
+## Collateral
+
+- Collateral submission received.
+- Collateral verification update.
+- Collateral approval.
+- Collateral rejection.
+
+## Security
+
+- Password change.
+- Account security activity.
+- New device alert, where appropriate.
+- Phone number change.
+- Suspicious account activity.
+
+Ensure all SMS messages reflect actual confirmed business events.
+
+---
+
+# 23. DATABASE DESIGN
+
+Audit the existing database first.
+
+Reuse existing tables where possible.
+
+Do not create duplicate user, transaction or notification records unnecessarily.
+
+If new tables are required, consider the following architecture.
+
+### sms_providers
+
+Stores provider configuration metadata.
+
+Possible fields:
+
+- id.
+- provider_name.
+- provider_code.
+- provider_status.
+- enabled.
+- configuration_metadata.
+- created_at.
+- updated_at.
+
+Do not store unprotected secrets in publicly accessible database tables.
+
+### sms_sender_ids
+
+- id.
+- sender_name.
+- provider_id.
+- approval_status.
+- enabled.
+- created_at.
+- updated_at.
+
+### sms_templates
+
+- id.
+- template_name.
+- template_code.
+- category.
+- message_body.
+- approved_variables.
+- sender_id.
+- status.
+- version.
+- created_at.
+- updated_at.
+
+### sms_messages
+
+- id.
+- user_id.
+- recipient.
+- category.
+- template_id.
+- provider_id.
+- provider_message_id.
+- message_snapshot.
+- segment_count.
+- estimated_cost.
+- actual_cost.
+- currency.
+- status.
+- priority.
+- idempotency_key.
+- related_transaction_id.
+- related_entity_type.
+- related_entity_id.
+- error_code.
+- error_message.
+- attempt_count.
+- scheduled_at.
+- submitted_at.
+- delivered_at.
+- failed_at.
+- created_at.
+- updated_at.
+
+### sms_attempts
+
+- id.
+- sms_message_id.
+- provider_id.
+- attempt_number.
+- provider_message_id.
+- status.
+- response_metadata.
+- error_code.
+- error_message.
+- attempted_at.
+
+### sms_webhook_events
+
+- id.
+- provider_id.
+- provider_event_id.
+- provider_message_id.
+- event_type.
+- event_payload.
+- signature_valid.
+- processing_status.
+- received_at.
+- processed_at.
+
+Sensitive payloads must be filtered or retained only as necessary.
+
+### sms_provider_pricing
+
+- id.
+- provider_id.
+- price_per_segment.
+- currency.
+- effective_from.
+- effective_until.
+- pricing_metadata.
+- created_at.
+
+### sms_usage_daily
+
+- id.
+- date.
+- provider_id.
+- category.
+- messages_count.
+- segments_count.
+- estimated_cost.
+- actual_cost.
+
+Use database constraints and unique indexes as appropriate.
+
+### sms_settings
+
+Store non-secret system configuration:
+
+- Default provider.
+- Backup provider.
+- Failover settings.
+- Budget thresholds.
+- Retry policies.
+- Rate limits.
+- Sender ID defaults.
+- Other system configuration.
+
+### sms_notification_preferences
+
+Use the existing user preference infrastructure if available.
+
+Otherwise, create an appropriate preference table.
+
+---
+
+# 24. SECURITY AND ACCESS CONTROL
+
+Implement strict security controls.
+
+### Admin permissions
+
+Separate SMS permissions such as:
+
+- View SMS dashboard.
+- View SMS logs.
+- Configure SMS providers.
+- Manage SMS templates.
+- Manage SMS pricing.
+- Manage SMS budgets.
+- Send test SMS.
+- Create bulk SMS campaigns.
+- Approve campaigns.
+- Manage user SMS preferences, where appropriate.
+
+Do not allow every administrator to access provider credentials or initiate bulk messaging.
+
+Implement role-based authorization.
+
+### Database security
+
+Implement appropriate Supabase Row Level Security policies where applicable.
+
+Ensure:
+
+- Users cannot access other users' SMS records.
+- Users cannot access SMS provider credentials.
+- Users cannot change provider configurations.
+- Users cannot manipulate SMS costs.
+- Users cannot modify delivery statuses.
+- Users cannot send unrestricted SMS through exposed endpoints.
+- Users cannot bypass rate limits.
+- Users cannot access internal provider logs.
+- Admin-only tables are protected.
+
+### API security
+
+Implement:
+
+- Server-side authorization.
+- Rate limiting.
+- Input validation.
+- Phone number validation.
+- OTP abuse prevention.
+- Idempotency.
+- Audit logs.
+- Safe error handling.
+- Secret protection.
+- Webhook verification.
+
+---
+
+# 25. PHONE NUMBER HANDLING
+
+Implement proper Nigerian phone number handling.
+
+Normalize phone numbers to a consistent international format, preferably E.164.
+
+Support valid Nigerian numbers in appropriate formats.
+
+Examples:
+
+- 08012345678.
+- 07012345678.
+- 09012345678.
+- +2348012345678.
+- 2348012345678.
+
+Normalize valid inputs to:
+
+`+234XXXXXXXXXX`
+
+Do not assume all numbers are Nigerian if international support is enabled.
+
+Validate destination numbers before sending.
+
+Do not automatically send messages to invalid numbers.
+
+---
+
+# 26. AUDIT TRAIL
+
+Implement audit logs for sensitive SMS administration actions.
+
+Record:
+
+- Provider configuration changes.
+- API credential updates.
+- Sender ID changes.
+- Template changes.
+- Pricing changes.
+- Budget changes.
+- Provider switching.
+- Failover settings.
+- Campaign creation.
+- Campaign approval.
+- Campaign cancellation.
+- Test SMS.
+- Bulk SMS execution.
+- User preference administrative changes.
+
+Record:
+
+- Administrator ID.
+- Action.
+- Affected entity.
+- Timestamp.
+- Relevant non-sensitive change details.
+- IP address where appropriate and lawfully collected.
+
+Never record plaintext API credentials or OTP values in audit logs.
+
+---
+
+# 27. UI DESIGN REQUIREMENTS
+
+The SMS Management System must look like a premium fintech administrative application.
+
+Use the existing 1kDaily brand identity.
+
+### UI characteristics
+
+- Modern.
+- Clean.
+- Premium.
+- Responsive.
+- Mobile-friendly.
+- Intuitive.
+- Professionally structured.
+- Smooth but restrained animations.
+- Accessible.
+- Consistent with the existing admin dashboard.
+
+### Suggested admin navigation
+
+Under a Notifications or Communications section:
+
+- SMS Overview.
+- SMS Providers.
+- Sender IDs.
+- Templates.
+- SMS Logs.
+- Campaigns.
+- Usage & Costs.
+- SMS Settings.
+
+Do not clutter the sidebar.
+
+Use appropriate nested navigation.
+
+### Components
+
+- Provider status cards.
+- Delivery analytics charts.
+- SMS usage charts.
+- Template editor.
+- Message preview.
+- Segment calculator.
+- Provider configuration modal or page.
+- Test SMS form.
+- SMS log table.
+- Message detail drawer.
+- Delivery timeline.
+- Campaign progress view.
+- Budget usage indicators.
+- Search.
+- Pagination.
+- Filters.
+- Empty states.
+- Loading states.
+- Error states.
+- Confirmation dialogs.
+
+Use existing UI components wherever possible.
+
+---
+
+# 28. PERFORMANCE AND RELIABILITY
+
+Ensure the SMS system does not negatively affect the core financial application.
+
+Implement:
+
+- Database indexing.
+- Pagination.
+- Background processing.
+- Controlled concurrency.
+- Provider rate limits.
+- Request timeouts.
+- Circuit breaker or provider health protection where practical.
+- Retry limits.
+- Duplicate prevention.
+- Queue monitoring.
+- Failure monitoring.
+- Efficient analytics queries.
+
+SMS failures must not cause savings, loan, withdrawal or financial transaction records to be rolled back when the underlying transaction has already been validly completed.
+
+For critical business events, use reliable event recording or an outbox-style pattern where practical to avoid losing notification events after a transaction commits.
+
+SMS delivery must never be used as evidence of financial settlement.
+
+---
+
+# 29. TESTING
+
+Implement tests before production deployment.
+
+### Provider tests
+
+- Provider configuration.
+- API credential validation.
+- Connection testing.
+- SMS sending.
+- Provider errors.
+- Timeouts.
+- Failover.
+- Delivery reports.
+
+### Template tests
+
+- Variable rendering.
+- Missing variables.
+- Invalid variables.
+- Unicode.
+- Segment estimation.
+- Template preview.
+
+### Queue tests
+
+- Queue processing.
+- Duplicate prevention.
+- Retry.
+- Permanent failure.
+- Temporary failure.
+- Failover.
+- Rate limiting.
+- Scheduled messages.
+
+### Security tests
+
+- User authorization.
+- Admin authorization.
+- Credential exposure.
+- OTP abuse.
+- Rate limiting.
+- RLS.
+- Webhook verification.
+- Duplicate webhook processing.
+- Bulk SMS access.
+
+### Integration tests
+
+Test SMS integration with:
+
+- Registration.
+- OTP.
+- Savings.
+- Withdrawal.
+- Loan.
+- Repayment.
+- Guarantor.
+- Security events.
+
+Use mocked provider responses during automated tests.
+
+Do not use real SMS credits during routine automated tests.
+
+---
+
+# 30. IMPLEMENTATION PHASES
+
+Do not implement the entire system in one uncontrolled operation.
+
+Follow these phases.
+
+### Phase 0 — Project Audit
+
+- Inspect existing architecture.
+- Identify existing notification infrastructure.
+- Identify database changes required.
+- Identify security risks.
+- Create implementation roadmap.
+- Do not modify core application functionality.
+
+### Phase 1 — SMS Architecture
+
+- Central SMS service.
+- Provider interface.
+- Provider configuration architecture.
+- Database schema.
+- Security design.
+
+### Phase 2 — Admin UI Foundation
+
+- SMS dashboard.
+- Provider management.
+- SMS settings.
+- Navigation.
+
+### Phase 3 — Provider Integration
+
+- SmartSMS adapter.
+- Termii adapter.
+- Provider connection testing.
+- Provider balance checking where supported.
+
+### Phase 4 — Template Engine
+
+- Template CRUD.
+- Variable validation.
+- Preview.
+- Segment estimation.
+- Default templates.
+
+### Phase 5 — Queue and Delivery Processing
+
+- SMS queue.
+- Processing engine.
+- Retry engine.
+- Failover.
+- Idempotency.
+
+### Phase 6 — SMS Logs and Webhooks
+
+- SMS logs.
+- Delivery reports.
+- Webhook security.
+- Delivery timelines.
+
+### Phase 7 — Cost and Usage Management
+
+- Cost estimates.
+- Provider pricing.
+- Usage analytics.
+- Budget limits.
+- Low-balance alerts.
+
+### Phase 8 — Application Integration
+
+- OTP.
+- Savings.
+- Withdrawal.
+- Loan.
+- Repayment.
+- Guarantors.
+- Security alerts.
+
+### Phase 9 — Bulk Messaging
+
+- Campaign management.
+- Consent.
+- Scheduling.
+- Campaign analytics.
+- Approval workflow.
+
+### Phase 10 — Security and Testing
+
+- RLS.
+- Authorization.
+- Rate limits.
+- Abuse protection.
+- Integration tests.
+- Production hardening.
+
+### Phase 11 — Production Deployment
+
+- Environment variables.
+- Deployment configuration.
+- Webhook configuration.
+- Queue processing configuration.
+- Provider setup guide.
+- Operational monitoring.
+- Documentation.
+
+---
+
+# 31. DEVELOPMENT RULES FOR OPENCODE
+
+- Do not destroy or rewrite existing working features.
+- Do not modify financial logic unnecessarily.
+- Do not invent provider APIs.
+- Do not expose secrets.
+- Do not hardcode provider-specific logic in business modules.
+- Do not fabricate delivery statistics.
+- Do not fabricate provider balances.
+- Do not use mock SMS data in production.
+- Do not silently mark SMS as delivered.
+- Do not assume provider acceptance means delivery.
+- Do not retry messages indiscriminately.
+- Do not allow unrestricted marketing SMS.
+- Do not bypass user consent.
+- Do not allow duplicate SMS messages.
+- Do not let SMS failure compromise financial transaction integrity.
+- Do not store OTP values in permanent logs.
+- Do not create unnecessary database tables.
+- Reuse the existing architecture wherever practical.
+- Maintain responsive UI.
+- Maintain accessibility.
+- Document all architectural decisions.
+- Run tests after each phase.
+- Fix errors before proceeding.
+- Keep the application deployable after each phase.
+
+---
+
+# 32. FIRST TASK
+
+Begin with **PHASE 0 ONLY**.
+
+Audit the existing 1kDaily project.
+
+Provide a detailed report covering:
+
+1. Existing architecture.
+2. Existing notification infrastructure.
+3. Existing admin dashboard structure.
+4. Existing user notification system.
+5. Existing database schema relevant to SMS.
+6. Existing authentication and authorization.
+7. Required new tables.
+8. Required modifications to existing tables.
+9. Proposed SMS service architecture.
+10. SmartSMS integration approach.
+11. Termii integration approach.
+12. Queue architecture suitable for the current hosting environment.
+13. Security and privacy architecture.
+14. Provider failover architecture.
+15. Proposed admin navigation.
+16. Implementation roadmap.
+17. Risks and limitations.
+18. Testing strategy.
+
+Do not begin Phase 1 until the Phase 0 audit report is completed.
+
+After the audit, wait for approval to proceed.
+
+The ultimate goal is to build a reliable, affordable, secure and scalable SMS infrastructure for 1kDaily that can grow with the platform without requiring a complete SMS architecture rewrite in the future.

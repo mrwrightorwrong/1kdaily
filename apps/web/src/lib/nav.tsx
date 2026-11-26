@@ -20,6 +20,8 @@ import {
   Wallet,
 } from "lucide-react";
 
+export const CURRENT_PHASE = 4;
+
 export type NavItem = {
   readonly label: string;
   readonly href: string;
