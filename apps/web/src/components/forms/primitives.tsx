@@ -1,6 +1,7 @@
 "use client";
 
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { FormState } from "@/lib/form";
 
@@ -61,6 +62,7 @@ export function TextField({
   hint,
   optional,
   className,
+  type,
   ...props
 }: ComponentPropsWithoutRef<"input"> & {
   readonly id: string;
@@ -69,16 +71,38 @@ export function TextField({
   readonly hint?: string;
   readonly optional?: boolean;
 }) {
+  const [revealed, setRevealed] = useState(false);
+  const isPassword = type === "password";
+  const resolvedType = isPassword && revealed ? "text" : type;
+
   return (
     <FieldWrap id={id} label={label} error={error} hint={hint} optional={optional}>
-      <input
-        id={id}
-        name={props.name ?? id}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
-        className={cn(controlClass(Boolean(error)), className)}
-        {...props}
-      />
+      <div className="relative">
+        <input
+          id={id}
+          name={props.name ?? id}
+          type={resolvedType}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
+          className={cn(controlClass(Boolean(error)), isPassword && "pr-11", className)}
+          {...props}
+        />
+        {isPassword ? (
+          <button
+            type="button"
+            onClick={() => setRevealed((value) => !value)}
+            aria-label={revealed ? "Hide password" : "Show password"}
+            aria-pressed={revealed}
+            className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-xl text-subtle transition-colors hover:text-ink-900"
+          >
+            {revealed ? (
+              <EyeOff className="size-4" strokeWidth={1.9} aria-hidden />
+            ) : (
+              <Eye className="size-4" strokeWidth={1.9} aria-hidden />
+            )}
+          </button>
+        ) : null}
+      </div>
     </FieldWrap>
   );
 }
