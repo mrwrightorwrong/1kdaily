@@ -4,6 +4,8 @@ import { SplashScreen } from "@/components/brand/splash-screen";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const inter = localFont({
   src: "./fonts/InterVariable.woff2",
   variable: "--font-inter",
