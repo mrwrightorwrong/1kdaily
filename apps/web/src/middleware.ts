@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { assertPublicEnv, publicEnv } from "@/lib/env";
+import { publicEnv } from "@/lib/env";
 
 const PROTECTED_PREFIXES = ["/app", "/onboarding", "/admin"] as const;
 const AUTH_PAGES = ["/sign-in", "/sign-up"] as const;
@@ -10,7 +10,16 @@ function matchesPrefix(pathname: string, prefixes: readonly string[]): boolean {
 }
 
 export async function middleware(request: NextRequest) {
-  assertPublicEnv();
+  // NEXT_PUBLIC_* values are inlined at build time. If the build ran before the
+  // environment was configured they are empty, and throwing here would 500 every
+  // route including the marketing site. Degrade instead of taking the site down.
+  if (!publicEnv.supabaseUrl || !publicEnv.supabaseAnonKey) {
+    const pathname = request.nextUrl.pathname;
+    if (matchesPrefix(pathname, PROTECTED_PREFIXES)) {
+      return NextResponse.redirect(new URL("/sign-in", request.url));
+    }
+    return NextResponse.next();
+  }
 
   let response = NextResponse.next({ request });
 
