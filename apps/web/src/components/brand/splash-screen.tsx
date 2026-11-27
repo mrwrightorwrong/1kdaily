@@ -2,8 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
-import { siteConfig } from "@/lib/site";
-import { LogoMark } from "./logo";
+import { BrandLoader } from "./brand-loader";
 
 const SEEN_KEY = "1kd:splash-seen";
 const HOLD_MS = 1500;
@@ -37,46 +36,16 @@ export function SplashScreen() {
         <motion.div
           key="splash"
           aria-hidden
-          className="hero-surface fixed inset-0 z-[100] grid place-items-center overflow-hidden"
+          className="fixed inset-0 z-[100] overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f6f8fc_58%,#ecfdf5_100%)] dark:bg-[linear-gradient(160deg,#0b1739_0%,#0a2a24_60%,#064e3b_100%)]"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: EXIT_S, ease: "easeOut" } }}
         >
-          <div className="hero-grid-lines absolute inset-0 opacity-40" />
-          <div className="relative flex flex-col items-center gap-5 px-6 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.44, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <LogoMark className="size-16 rounded-[18px] shadow-hero" />
-            </motion.div>
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(58%_48%_at_50%_42%,rgba(16,185,129,0.14),transparent_72%)] dark:bg-[radial-gradient(58%_48%_at_50%_42%,rgba(16,185,129,0.22),transparent_72%)]"
+          />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#f5b942]/60 to-transparent" />
 
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.18, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="text-[1.375rem] font-semibold tracking-[-0.02em] text-white"
-            >
-              1k<span className="text-brand-300">Daily</span>
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.34, duration: 0.4 }}
-              className="text-[0.6875rem] font-medium uppercase tracking-[0.22em] text-white/50"
-            >
-              {siteConfig.tagline}
-            </motion.p>
-
-            <motion.span
-              aria-hidden
-              className="mt-2 h-px w-24 bg-gradient-to-r from-transparent via-brand-400 to-transparent"
-              initial={{ scaleX: 0, opacity: 0 }}
-              animate={{ scaleX: 1, opacity: 1 }}
-              transition={{ delay: 0.42, duration: 0.6, ease: "easeOut" }}
-            />
-          </div>
+          <BrandLoader size="full" />
         </motion.div>
       ) : null}
     </AnimatePresence>

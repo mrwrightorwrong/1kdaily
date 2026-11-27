@@ -4,13 +4,19 @@ import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/cn";
 
+const ARTWORK = {
+  src: "/brand/logo-loader.webp",
+  width: 1080,
+  height: 360,
+} as const;
+
 /**
  * 1kDaily brand loader.
  *
- * The supplied artwork is a light-background lockup with a dark wordmark, so it
- * sits on a soft plate in both themes rather than inverting and losing contrast.
- * The progress bar is deliberately indeterminate: we never show a percentage we
- * cannot measure. Motion is skipped entirely for reduced-motion users.
+ * The artwork is a dark-on-transparent lockup, so in dark mode it sits on a soft
+ * white plate to keep contrast; in light mode it sits directly on the surface.
+ * The progress bar is deliberately indeterminate — we never show a percentage
+ * we cannot measure. Motion is skipped entirely for reduced-motion users.
  */
 export function BrandLoader({
   message,
@@ -28,7 +34,7 @@ export function BrandLoader({
     <div
       role="status"
       aria-live="polite"
-      aria-busy
+      aria-busy="true"
       className={cn(
         "flex flex-col items-center gap-6 text-center",
         size === "full" && "min-h-dvh justify-center px-6 py-12",
@@ -39,16 +45,17 @@ export function BrandLoader({
         initial={reduceMotion ? false : { opacity: 0, scale: 0.92, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: reduceMotion ? 0 : 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="rounded-2xl bg-white/95 px-4 py-3 shadow-[0_18px_50px_-30px_rgba(11,23,57,0.6)] ring-1 ring-black/5 dark:bg-white"
+        className="rounded-2xl px-3 py-3 dark:bg-white dark:shadow-[0_18px_50px_-30px_rgba(0,0,0,0.8)] dark:ring-1 dark:ring-white/10"
       >
         <Image
-          src="/brand/logo-loader.png"
+          src={ARTWORK.src}
           alt="1kDaily — Save Daily, Build Capacity"
-          width={900}
-          height={312}
+          width={ARTWORK.width}
+          height={ARTWORK.height}
           priority
-          className="h-auto"
-          style={{ width, height: "auto" }}
+          sizes="(max-width: 640px) 82vw, 340px"
+          className="h-auto w-full"
+          style={{ width: `min(${width}px, 82vw)`, height: "auto" }}
         />
       </motion.div>
 
@@ -66,7 +73,7 @@ export function BrandLoader({
           />
         </div>
 
-        <p className="mt-3 text-[0.75rem] font-medium text-muted">
+        <p className="mt-3 text-[0.75rem] font-medium text-muted dark:text-white/70">
           {message ?? "Preparing your experience…"}
         </p>
       </div>

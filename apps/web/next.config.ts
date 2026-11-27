@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   // leak framework code into the money layer.
   transpilePackages: ["@1kdaily/core"],
   poweredByHeader: false,
+  images: {
+    // The brand lockup and proof-of-payment previews are served as AVIF/WebP
+    // where the browser supports it.
+    formats: ["image/avif", "image/webp"],
+  },
   async headers() {
     return [
       {
