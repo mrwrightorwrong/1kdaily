@@ -110,13 +110,26 @@ export async function signInAction(_previous: FormState, formData: FormData): Pr
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  });
+  let signInError: { message: string; code?: string } | null = null;
+  try {
+    const result = await supabase.auth.signInWithPassword({
+      email: parsed.data.email,
+      password: parsed.data.password,
+    });
+    signInError = result.error;
+  } catch (thrown) {
+    console.error("[auth] sign-in threw", thrown instanceof Error ? thrown.message.slice(0, 150) : "unknown");
+    return {
+      status: "error",
+      message:
+        thrown instanceof Error
+          ? `Sign-in could not start: ${thrown.message.slice(0, 160)}`
+          : "Sign-in could not start.",
+    };
+  }
 
-  if (error) {
-    return { status: "error", message: mapAuthError(error) };
+  if (signInError) {
+    return { status: "error", message: mapAuthError(signInError) };
   }
 
   redirect(safeNextPath(String(formData.get("next") ?? "")));
