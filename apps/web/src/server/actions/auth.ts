@@ -109,9 +109,9 @@ export async function signInAction(_previous: FormState, formData: FormData): Pr
     };
   }
 
-  const supabase = await createSupabaseServerClient();
   let signInError: { message: string; code?: string } | null = null;
   try {
+    const supabase = await createSupabaseServerClient();
     const result = await supabase.auth.signInWithPassword({
       email: parsed.data.email,
       password: parsed.data.password,
