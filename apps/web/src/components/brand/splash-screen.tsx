@@ -7,6 +7,9 @@ import { BrandLoader } from "./brand-loader";
 const SEEN_KEY = "1kd:splash-seen";
 const HOLD_MS = 1500;
 const EXIT_S = 0.32;
+/** Skip the reveal once the page has been readable for a while. */
+const BOOT_WINDOW_MS = 1500;
+const BOOT_HARD_STOP_MS = 4000;
 
 /**
  * Brand boot reveal. Shows at most once per browser session, never blocks
@@ -19,6 +22,12 @@ export function SplashScreen() {
 
   useEffect(() => {
     if (reduceMotion) return;
+    // A reveal is only a reveal on the way in. If the page has already been
+    // readable for a while, covering it now would be an interruption.
+    const now = performance.now();
+    const fcp = performance.getEntriesByName("first-contentful-paint")[0]?.startTime;
+    const sinceReadable = fcp === undefined ? now : now - fcp;
+    if (sinceReadable > BOOT_WINDOW_MS || now > BOOT_HARD_STOP_MS) return;
     try {
       if (window.sessionStorage.getItem(SEEN_KEY)) return;
       window.sessionStorage.setItem(SEEN_KEY, "1");

@@ -63,6 +63,7 @@ export default function RootLayout({ children }: { readonly children: React.Reac
   return (
     <html lang="en-NG" className={inter.variable} suppressHydrationWarning>
       <head>
+        <link rel="preload" as="image" href="/brand/logo-loader.webp" fetchPriority="high" />
         <script
           dangerouslySetInnerHTML={{
             __html:
