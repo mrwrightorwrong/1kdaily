@@ -75,8 +75,8 @@ begin
     v_remaining := v_remaining - v_apply;
   end loop;
 
-  if v_remaining = v_amount then
-    raise exception 'There is nothing left to repay on this loan.' using errcode = '22023';
+  if v_remaining > 0 then
+    raise exception 'Repayment exceeds the outstanding balance.' using errcode = '22023';
   end if;
 
   v_tx := app.post_transaction(
