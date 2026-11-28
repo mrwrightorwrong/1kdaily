@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
-import { ADMIN_NAV } from "@/lib/nav";
+import { ADMIN_NAV, CURRENT_PHASE } from "@/lib/nav";
 import { cn } from "@/lib/cn";
 
 export function AdminSidebar() {
@@ -50,10 +50,11 @@ export function AdminSidebar() {
       <div className="border-t border-white/10 p-3">
         <div className="rounded-xl bg-white/5 p-3 ring-1 ring-inset ring-white/10">
           <p className="text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-white/40">
-            Phase 2
+            Phase {CURRENT_PHASE}
           </p>
           <p className="mt-1.5 text-[0.6875rem] leading-relaxed text-white/50">
-            Identity verification is live. Savings and finance modules arrive in later phases.
+            Guarantors, collateral and loan servicing are live. Notification and support screens
+            arrive in later phases.
           </p>
           <Link
             href="/app"

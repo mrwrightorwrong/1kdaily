@@ -60,8 +60,9 @@ export default async function AdminOverviewPage() {
       <div className="mt-5 flex items-start gap-2.5 rounded-xl border border-warn-500/25 bg-warn-50 p-3.5">
         <Info className="mt-0.5 size-4 shrink-0 text-warn-500" strokeWidth={2} aria-hidden />
         <p className="text-[0.75rem] leading-relaxed text-[#7a5300]">
-          Identity verification is live. Savings, lending and finance modules arrive in later phases;
-          their placeholders are intentionally empty rather than populated with sample figures.
+          Identity verification, savings, withdrawals and loan servicing are live. The remaining
+          operations screens arrive in later phases; their placeholders are intentionally empty
+          rather than populated with sample figures.
         </p>
       </div>
 

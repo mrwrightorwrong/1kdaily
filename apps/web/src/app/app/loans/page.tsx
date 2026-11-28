@@ -2,6 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Money } from "@/components/finance/money";
 import { ApplyForLoanForm } from "@/components/loans/apply-form";
+import { CollateralCard, type CollateralRow } from "@/components/loans/collateral-card";
+import {
+  GuarantorsCard,
+  type GuarantorInvitationRow,
+  type GuarantorRow,
+} from "@/components/loans/guarantors-card";
 import { Badge, Card, CardContent, CardHeader, CardTitle, buttonVariants } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
 import { createSupabaseServerClient } from "@/server/supabase/server";
@@ -51,6 +57,38 @@ export default async function LoansPage({
   ]);
 
   const offer = (application as { loan_offers?: OfferRow[] } | null)?.loan_offers?.[0];
+
+  const applicationId = (application as { id?: string } | null)?.id;
+  const applicationStatus = (application as { status?: string } | null)?.status ?? "";
+  const arranging = ["submitted", "under_review", "approved", "awaiting_disbursement"].includes(
+    applicationStatus,
+  );
+
+  const [invitationsResult, guarantorsResult, collateralResult] = applicationId
+    ? await Promise.all([
+        supabase
+          .from("guarantor_invitations")
+          .select("id, email, status, expires_at, token")
+          .eq("application_id", applicationId)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("guarantors")
+          .select("id, full_name, email, status, guarantee_amount_kobo, consented_at, verified_at")
+          .eq("application_id", applicationId)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("collateral_records")
+          .select(
+            "id, category, description, estimated_value_kobo, valuation_method, valuation_date, ownership_evidence, status, release_status, review_notes, created_at, collateral_documents(id, document_type, status)",
+          )
+          .eq("application_id", applicationId)
+          .order("created_at", { ascending: false }),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }];
+
+  const invitations = (invitationsResult.data ?? []) as GuarantorInvitationRow[];
+  const guarantors = (guarantorsResult.data ?? []) as GuarantorRow[];
+  const collateral = (collateralResult.data ?? []) as unknown as CollateralRow[];
 
   return (
     <div className="animate-rise space-y-4">
@@ -172,6 +210,17 @@ export default async function LoansPage({
           </CardContent>
         </Card>
       )}
+
+      {arranging && applicationId ? (
+        <>
+          <GuarantorsCard
+            applicationId={applicationId}
+            invitations={invitations}
+            guarantors={guarantors}
+          />
+          <CollateralCard applicationId={applicationId} records={collateral} />
+        </>
+      ) : null}
 
       {application ? (
         <p className="text-[0.625rem] text-subtle">

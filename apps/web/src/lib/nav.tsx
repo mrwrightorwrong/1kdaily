@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 /** Highest phase whose features are live; higher-phase items show a marker. */
-export const CURRENT_PHASE = 6;
+export const CURRENT_PHASE = 8;
 
 export type NavItem = {
   readonly label: string;
@@ -39,7 +39,7 @@ export const PRIMARY_NAV: readonly NavItem[] = [
   { label: "Withdrawals", href: "/app/withdrawals", icon: Wallet, phase: 5 },
   { label: "Loan Eligibility", href: "/app/eligibility", icon: Percent, phase: 6 },
   { label: "My Loans", href: "/app/loans", icon: HandCoins, phase: 7 },
-  { label: "Repayments", href: "/app/repayments", icon: Receipt, phase: 9 },
+  { label: "Repayments", href: "/app/repayments", icon: Receipt, phase: 7 },
   { label: "Transactions", href: "/app/transactions", icon: ArrowLeftRight, phase: 4 },
   { label: "Notifications", href: "/app/notifications", icon: Bell, phase: 11 },
   { label: "Profile", href: "/app/profile", icon: User, phase: 2 },
