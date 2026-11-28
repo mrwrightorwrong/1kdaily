@@ -1,8 +1,8 @@
 # Phase 8 — Guarantors and collateral
 
 **Date:** 28 November 2026
-**Status:** Database and rules complete; customer and staff screens are the remaining work.
-**Evidence:** `tools/db/phase8-tests.mjs` — 29/29 assertions. Existing suites unaffected: 46/46 RLS, 5/5 loans, 10/10 repayments.
+**Status:** Complete through the customer and staff screens. Email delivery of invitation links is the only piece still external.
+**Evidence:** `tools/db/phase8-tests.mjs` — 29/29 assertions. Browser journey (Playwright, local build): 11/11 — invite, accept, add collateral, upload, verify. Existing suites unaffected: 46/46 RLS, 5/5 loans, 10/10 repayments.
 
 ---
 
@@ -18,6 +18,10 @@
 | Collateral documents | `collateral_documents` — private storage path, per-document review status |
 | Collateral RPCs | `submit_collateral`, `attach_collateral_document`, `review_collateral_document`, `review_collateral`, `release_collateral` |
 | Access | Owner read policies, staff read via `loans:read`; `collateral:verify` granted to `risk_officer` |
+| Storage | private `collateral` bucket (8 MiB, PDF/JPEG/PNG/WebP); uploads and signed links issued server-side only |
+| Customer UI | `/app/loans`: invite a guarantor, copy the single-use link, add collateral, upload evidence, follow review status |
+| Guarantor UI | `/guarantee/[token]`: sign-in required, invitation summary, consent, accept or decline |
+| Staff UI | `/admin/loans`: collateral queue with signed document links and per-document review, guarantor queue, release after closure |
 
 ### The four rules enforced in SQL, not the UI
 
@@ -56,6 +60,11 @@ the guarantor's funds. Removing that association is what `release_guarantor` rec
 | Guarantor review | constraint blocks `verified` without consent; staff cannot verify before consent; verify succeeds after; release blocked while open, allowed after closure |
 | Audit | submission and verification both appear in `audit_logs` |
 
+Browser journey (Playwright against a local production build): invite a guarantor →
+accept from the invited account → collateral added → PDF uploaded to the private
+bucket → risk officer verifies from the queue. 11/11 checks, with the database
+confirming `verified` + `held` and a `pending` document.
+
 Each case runs inside a transaction that is rolled back, so no fixture data or
 temporary role grants survive.
 
@@ -75,7 +84,7 @@ temporary role grants survive.
 
 ## 4. Remaining
 
-1. Customer UI on the loan page: invite a guarantor, add collateral, attach documents.
-2. Staff review queue in `/admin/loans`: verify/reject with reasons, release after closure.
-3. Storage bucket for collateral documents with signed-URL access.
-4. Email delivery of the guarantor invitation link.
+1. **Send the invitation email.** Today the borrower copies the link; delivery belongs to the notification phase.
+2. Notify the borrower when a guarantor responds, and the guarantor when the loan closes.
+3. Surface guarantor and collateral status in `/admin/risk` rather than only the loans queue.
+4. Retention policy for collateral documents after release.
