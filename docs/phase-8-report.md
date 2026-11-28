@@ -1,7 +1,7 @@
 # Phase 8 — Guarantors and collateral
 
 **Date:** 28 November 2026
-**Status:** Complete. Email delivery is optional and off until a provider key is set; everything else works without it.
+**Status:** Complete. Resend is configured and delivery is proven to the account owner; verifying a sending domain is the only step left to email other recipients.
 **Evidence:** `tools/db/phase8-tests.mjs` — 41/41 assertions. Browser journey (Playwright, local build): 11/11 — invite, accept, add collateral, upload, verify. Existing suites unaffected: 46/46 RLS, 5/5 loans, 10/10 repayments.
 
 ---
@@ -23,8 +23,8 @@
 | Guarantor UI | `/guarantee/[token]`: sign-in required, invitation summary, consent, accept or decline |
 | Staff UI | `/admin/loans`: collateral queue with signed document links and per-document review, guarantor queue, release after closure |
 | Notifications | `notifications` table written by triggers on guarantor response, collateral review, guarantor review and loan closure; unread badge, dashboard card, `/app/notifications` |
-| Invitation email | Optional provider delivery (Resend); every invitation records `queued` / `sent` / `failed` / `skipped`, and the share link always works |
-| Retention | Release starts a 90-day window (`documents_retain_until`); `purge_released_collateral_documents` plus `tools/db/purge-collateral-documents.mjs` |
+| Invitation email | Resend delivery; every invitation records `queued` / `sent` / `failed` / `skipped`, and the share link always works |
+| Retention | Release starts a 90-day window (`documents_retain_until`); daily Vercel Cron calls `/api/cron/purge-collateral-documents` to delete rows and objects, plus `tools/db/purge-collateral-documents.mjs` for dry runs |
 
 ### The four rules enforced in SQL, not the UI
 
@@ -79,6 +79,11 @@ accept from the invited account → collateral added → PDF uploaded to the pri
 bucket → risk officer verifies from the queue. 11/11 checks, with the database
 confirming `verified` + `held` and a `pending` document.
 
+Email and scheduling: a real message was delivered through Resend to the account
+owner (`sent`), a third-party recipient was refused and recorded as `failed` with
+the provider's reason, and the cron route returned `401` without the secret and
+`200` with it.
+
 Each case runs inside a transaction that is rolled back, so no fixture data or
 temporary role grants survive.
 
@@ -98,7 +103,7 @@ temporary role grants survive.
 
 ## 4. Remaining
 
-1. **Connect an email provider.** Set `RESEND_API_KEY` and `EMAIL_FROM`; until then invitations are created and marked `skipped`, and the link is shared by hand.
-2. **Schedule the retention purge.** `tools/db/purge-collateral-documents.mjs --apply` is idempotent and safe to run daily; it is not yet on a schedule.
+1. **Verify a sending domain.** The Resend key is configured and delivery is proven to the account owner. Until a domain is verified at `resend.com/domains`, Resend only accepts the account's own address; invitations to anyone else are recorded as `failed` with that reason, and the share link is used instead. After verification, change `EMAIL_FROM` in Vercel to the branded address.
+2. **Retention purge is scheduled** — daily at 03:15 UTC via Vercel Cron (`/api/cron/purge-collateral-documents`, bearer `CRON_SECRET`). No manual run is needed; `tools/db/purge-collateral-documents.mjs` remains for ad-hoc dry runs.
 3. Notification preferences (email/SMS per event) belong to the notification phase; the in-app record already exists.
 4. Surface guarantor and collateral status in `/admin/risk` as well as the loans queue.

@@ -117,8 +117,7 @@ export async function inviteGuarantorAction(
       }
     : {
         status: "error",
-        message:
-          "Invitation created, but the email could not be sent. Share the private link below — only that address can accept it.",
+        message: `Invitation created, but the email could not be sent (${result.error}). Share the private link below — only that address can accept it.`,
       };
 }
 

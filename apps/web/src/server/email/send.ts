@@ -46,7 +46,17 @@ export async function sendEmail(message: EmailMessage): Promise<EmailResult> {
     if (!response.ok) {
       const detail = await response.text().catch(() => "");
       console.error("[email] provider rejected", response.status, detail.slice(0, 200));
-      return { ok: false, error: `The email provider returned ${response.status}.` };
+
+      if (response.status === 403) {
+        return {
+          ok: false,
+          error: "the provider only allows the account owner until a sending domain is verified",
+        };
+      }
+      if (response.status === 429) {
+        return { ok: false, error: "the provider is rate limiting requests" };
+      }
+      return { ok: false, error: `the provider returned ${response.status}` };
     }
 
     return { ok: true };
