@@ -4,7 +4,13 @@ import { Logo } from "@/components/brand/logo";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
-export function AppTopbar({ initials }: { readonly initials: string }) {
+export function AppTopbar({
+  initials,
+  unread = 0,
+}: {
+  readonly initials: string;
+  readonly unread?: number;
+}) {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-canvas/95 px-4 backdrop-blur-xl sm:px-6 lg:px-8">
       <div className="flex items-center gap-1 lg:hidden">
@@ -29,11 +35,15 @@ export function AppTopbar({ initials }: { readonly initials: string }) {
         </Link>
         <Link
           href="/app/notifications"
-          aria-label="Notifications"
+          aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
           className="relative grid size-9 place-items-center rounded-full text-muted transition-colors hover:bg-ink-900/5 hover:text-ink-900"
         >
           <Bell className="size-[1.15rem]" strokeWidth={1.8} aria-hidden />
-          <span className="absolute right-2 top-2 size-1.5 rounded-full bg-line ring-2 ring-canvas" />
+          {unread > 0 ? (
+            <span className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[0.5625rem] font-semibold leading-4 text-white ring-2 ring-canvas">
+              {unread > 9 ? "9+" : unread}
+            </span>
+          ) : null}
         </Link>
         <Link
           href="/app/profile"

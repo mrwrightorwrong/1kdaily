@@ -21,6 +21,7 @@ export type CollateralRow = {
   readonly status: string;
   readonly release_status: string;
   readonly review_notes: string | null;
+  readonly documents_retain_until: string | null;
   readonly created_at: string;
   readonly collateral_documents: ReadonlyArray<CollateralDocumentRow>;
 };
@@ -106,6 +107,14 @@ export function CollateralCard({
                 {record.review_notes ? (
                   <p className="mt-2 rounded-lg bg-canvas px-2.5 py-2 text-[0.6875rem] leading-relaxed text-muted">
                     Reviewer: {record.review_notes}
+                  </p>
+                ) : null}
+
+                {record.release_status === "released" ? (
+                  <p className="mt-2 text-[0.625rem] text-subtle">
+                    {record.documents_retain_until
+                      ? `Released. Documents are retained until ${date(record.documents_retain_until)}, then deleted.`
+                      : "Released. Documents are no longer retained."}
                   </p>
                 ) : null}
 

@@ -9,6 +9,8 @@ export type GuarantorInvitationRow = {
   readonly status: string;
   readonly expires_at: string;
   readonly token: string;
+  readonly email_status: string;
+  readonly email_sent_at: string | null;
 };
 
 export type GuarantorRow = {
@@ -45,6 +47,21 @@ function when(value: string): string {
     month: "short",
     year: "numeric",
   });
+}
+
+function emailLine(invitation: GuarantorInvitationRow): string {
+  switch (invitation.email_status) {
+    case "sent":
+      return invitation.email_sent_at
+        ? `Emailed ${when(invitation.email_sent_at)}`
+        : "Emailed";
+    case "failed":
+      return "Email could not be sent — share the link instead";
+    case "skipped":
+      return "Email delivery is not configured — share the link";
+    default:
+      return "Email queued";
+  }
 }
 
 export function GuarantorsCard({
@@ -96,6 +113,7 @@ export function GuarantorsCard({
                   {invitation.status === "invited" ? (
                     <CopyInviteLink path={`/guarantee/${invitation.token}`} className="mt-2" />
                   ) : null}
+                  <p className="mt-1 text-[0.625rem] text-subtle">{emailLine(invitation)}</p>
                 </li>
               ))}
             </ul>

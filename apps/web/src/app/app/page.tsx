@@ -9,8 +9,10 @@ import { MetricStrip } from "@/components/dashboard/metric-strip";
 import { MilestoneCard } from "@/components/dashboard/milestone-card";
 import { PlanProgressCard } from "@/components/dashboard/plan-progress-card";
 import { SavingsHero } from "@/components/dashboard/savings-hero";
+import { UpdatesCard } from "@/components/dashboard/updates-card";
 import { Badge, buttonVariants } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
+import type { NotificationRow } from "@/lib/notifications";
 import {
   getIdentitySummary,
   getVerificationStatuses,
@@ -22,17 +24,32 @@ import {
   refreshPlanDays,
   splitPlans,
 } from "@/server/savings/plans";
+import { createSupabaseServerClient } from "@/server/supabase/server";
 
 export default async function OverviewPage() {
   const profile = await requireProfile();
   await refreshPlanDays();
 
   const today = todayBusinessDate();
-  const [verifications, identity, plans] = await Promise.all([
+  const supabase = await createSupabaseServerClient();
+  const [verifications, identity, plans, unreadResult, unreadCountResult] = await Promise.all([
     getVerificationStatuses(),
     getIdentitySummary(),
     getPlans(today),
+    supabase
+      .from("notifications")
+      .select("id, kind, title, body, href, read_at, created_at")
+      .is("read_at", null)
+      .order("created_at", { ascending: false })
+      .limit(3),
+    supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .is("read_at", null),
   ]);
+
+  const unread = (unreadResult.data ?? []) as NotificationRow[];
+  const unreadCount = unreadCountResult.count ?? unread.length;
 
   const { current } = splitPlans(plans);
   const primaryPlan = current[0] ?? null;
@@ -96,7 +113,7 @@ export default async function OverviewPage() {
           Identity{" "}
           {identityVerified ? "verified" : identitySubmitted ? "in review" : "not provided"}
         </span>
-        <Badge variant="neutral">Phase 3 · savings plans</Badge>
+        <Badge variant="neutral">Savings · credit · guarantors</Badge>
       </div>
 
       <div className="space-y-4">
@@ -110,6 +127,8 @@ export default async function OverviewPage() {
         />
 
         <MetricStrip activePlans={current.length} currentStreakDays={streak} />
+
+        {unreadCount > 0 ? <UpdatesCard items={unread} unread={unreadCount} /> : null}
 
         <div className="grid gap-4 lg:grid-cols-12">
           <div className="space-y-4 lg:col-span-7">
@@ -130,9 +149,9 @@ export default async function OverviewPage() {
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-card border border-line bg-surface p-4">
         <p className="max-w-2xl text-[0.6875rem] leading-relaxed text-muted">
-          Profiles, identity verification and savings schedules are live. Confirmed contributions
-          arrive with the double-entry ledger (Phase 4); until then accumulated savings stays at zero
-          and past-due days are recorded as grace or missed.
+          Savings, withdrawals, lending, guarantors and collateral are live. A credit limit is an
+          assessment, never a promise of approval; every balance shown here comes from the
+          double-entry ledger.
         </p>
         <Link
           href="/app/plans"

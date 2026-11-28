@@ -47,7 +47,7 @@ export function SavingsHero({
               Total eligible savings
             </p>
             <span className="rounded-full bg-white/10 px-2 py-0.5 text-[0.5rem] font-semibold uppercase tracking-[0.1em] text-white/55">
-              Ledger not live
+              {eligibleSavingsKobo === 0n ? "No confirmed savings" : "From the ledger"}
             </span>
           </div>
 
@@ -56,8 +56,8 @@ export function SavingsHero({
           </p>
 
           <p className="mt-3 max-w-md text-[0.8125rem] leading-relaxed text-white/55">
-            When the ledger is live, this figure is derived from confirmed contributions on eligible
-            plans — never from a stored, editable balance.
+            Derived from confirmed contributions on eligible plans — never from a stored, editable
+            balance.
           </p>
 
           <div className="mt-6 grid max-w-sm grid-cols-2 gap-3">

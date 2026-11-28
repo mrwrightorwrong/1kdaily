@@ -68,7 +68,7 @@ export default async function LoansPage({
     ? await Promise.all([
         supabase
           .from("guarantor_invitations")
-          .select("id, email, status, expires_at, token")
+          .select("id, email, status, expires_at, token, email_status, email_sent_at")
           .eq("application_id", applicationId)
           .order("created_at", { ascending: false }),
         supabase
@@ -79,7 +79,7 @@ export default async function LoansPage({
         supabase
           .from("collateral_records")
           .select(
-            "id, category, description, estimated_value_kobo, valuation_method, valuation_date, ownership_evidence, status, release_status, review_notes, created_at, collateral_documents(id, document_type, status)",
+            "id, category, description, estimated_value_kobo, valuation_method, valuation_date, ownership_evidence, status, release_status, review_notes, documents_retain_until, created_at, collateral_documents(id, document_type, status)",
           )
           .eq("application_id", applicationId)
           .order("created_at", { ascending: false }),

@@ -6,6 +6,7 @@ import { AppBottomNav } from "@/components/layout/app-bottom-nav";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { getPermissions, requireProfile, requireUser } from "@/server/auth/session";
+import { createSupabaseServerClient } from "@/server/supabase/server";
 
 export const metadata: Metadata = {
   title: { default: "Overview", template: "%s · 1kDaily" },
@@ -29,6 +30,12 @@ export default async function AppLayout({ children }: { readonly children: React
   }
 
   const permissions = await getPermissions();
+  const supabase = await createSupabaseServerClient();
+  const { count: unreadNotifications } = await supabase
+    .from("notifications")
+    .select("id", { count: "exact", head: true })
+    .is("read_at", null);
+
   const displayName =
     [profile.first_name, profile.last_name].filter(Boolean).join(" ") || (user.email ?? "Your account");
 
@@ -43,6 +50,7 @@ export default async function AppLayout({ children }: { readonly children: React
       <div className="lg:pl-[15.5rem]">
         <AppTopbar
           initials={initialsFrom(profile.first_name, profile.last_name, user.email ?? "1K")}
+          unread={unreadNotifications ?? 0}
         />
         <main
           id="main"

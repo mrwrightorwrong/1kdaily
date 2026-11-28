@@ -480,6 +480,190 @@ check(
   auditTrail.error ?? JSON.stringify(row(auditTrail)),
 );
 
+// ---------------------------------------------------------------------------
+// Notifications, email state and retention
+// ---------------------------------------------------------------------------
+
+const acceptedNotifies = await sql(`begin; ${setup}
+  ${seedInvitation("tok-notify")}
+  ${asUser(B)}
+  select public.accept_guarantor_invitation('tok-notify', 'Bola Adeyemi', 'colleague');
+  reset role;
+  select count(*)::int as notices from public.notifications
+   where user_id = '${A}' and kind = 'guarantor.accepted';
+  rollback;`);
+check(
+  "accepting a guarantee notifies the borrower",
+  acceptedNotifies.ok && Number(row(acceptedNotifies).notices) === 1,
+  acceptedNotifies.error ?? JSON.stringify(row(acceptedNotifies)),
+);
+
+const declinedNotifies = await sql(`begin; ${setup}
+  ${seedInvitation("tok-notify-decline")}
+  ${asUser(B)}
+  select public.decline_guarantor_invitation('tok-notify-decline');
+  reset role;
+  select count(*)::int as notices from public.notifications
+   where user_id = '${A}' and kind = 'guarantor.declined';
+  rollback;`);
+check(
+  "declining a guarantee notifies the borrower",
+  declinedNotifies.ok && Number(row(declinedNotifies).notices) === 1,
+  declinedNotifies.error ?? JSON.stringify(row(declinedNotifies)),
+);
+
+const collateralNotifies = await sql(`begin; ${setup}
+  ${asUser(A)}
+  select public.submit_collateral('${APP}', 'vehicle', 'Toyota Corolla 2015', null, null, null, null, null);
+  ${asUser(VERIFIER)}
+  select public.review_collateral(${COLLATERAL_OF_APP}, 'verify', 'Valuation report matches the market');
+  reset role;
+  select count(*)::int as notices from public.notifications
+   where user_id = '${A}' and kind = 'collateral.verified';
+  rollback;`);
+check(
+  "verifying collateral notifies its owner",
+  collateralNotifies.ok && Number(row(collateralNotifies).notices) === 1,
+  collateralNotifies.error ?? JSON.stringify(row(collateralNotifies)),
+);
+
+const notificationIsolation = await sql(`begin; ${setup}
+  ${seedInvitation("tok-isolation")}
+  ${asUser(B)}
+  select public.accept_guarantor_invitation('tok-isolation', 'Bola Adeyemi', null);
+  ${asUser(B)}
+  select count(*)::int as visible from public.notifications;
+  rollback;`);
+check(
+  "a customer cannot read another customer's notifications",
+  notificationIsolation.ok && Number(row(notificationIsolation).visible) === 0,
+  notificationIsolation.error ?? JSON.stringify(row(notificationIsolation)),
+);
+
+const markRead = await sql(`begin; ${setup}
+  ${seedInvitation("tok-read")}
+  ${asUser(B)}
+  select public.accept_guarantor_invitation('tok-read', 'Bola Adeyemi', null);
+  ${asUser(A)}
+  create temp table _read_result on commit drop as
+    select public.mark_notifications_read() as marked;
+
+  select (select marked from _read_result) as marked,
+         (select count(*) filter (where read_at is not null)::int
+            from public.notifications where user_id = '${A}') as read_count;
+  rollback;`);
+check(
+  "marking notifications read only affects the caller's own rows",
+  markRead.ok && Number(row(markRead).marked) === 1 && Number(row(markRead).read_count) === 1,
+  markRead.error ?? JSON.stringify(row(markRead)),
+);
+
+const emailStatus = await sql(`begin; ${setup}
+  ${seedInvitation("tok-email")}
+  select email_status from public.guarantor_invitations where token = 'tok-email';
+  rollback;`);
+check(
+  "an invitation starts with a queued email",
+  emailStatus.ok && row(emailStatus).email_status === "queued",
+  emailStatus.error ?? JSON.stringify(row(emailStatus)),
+);
+
+const emailStatusGuard = await sql(`begin; ${setup}
+  ${seedInvitation("tok-email-guard")}
+  ${asUser(A)}
+  select public.mark_guarantor_invitation_email('tok-email-guard', 'sent', null);
+  rollback;`);
+check(
+  "a client cannot claim an invitation email was sent",
+  !emailStatusGuard.ok && /42501/.test(emailStatusGuard.error ?? ""),
+  emailStatusGuard.error ?? "",
+);
+
+const emailStatusMarked = await sql(`begin; ${setup}
+  ${seedInvitation("tok-email-ok")}
+  select public.mark_guarantor_invitation_email('tok-email-ok', 'sent', null);
+  select email_status, (email_sent_at is not null) as sent
+    from public.guarantor_invitations where token = 'tok-email-ok';
+  rollback;`);
+check(
+  "the service role can record a delivered invitation email",
+  emailStatusMarked.ok && row(emailStatusMarked).email_status === "sent" &&
+    row(emailStatusMarked).sent === true,
+  emailStatusMarked.error ?? JSON.stringify(row(emailStatusMarked)),
+);
+
+const retentionWindow = await sql(`begin; ${setup}
+  ${asUser(A)}
+  select public.submit_collateral('${APP}', 'vehicle', 'Toyota Corolla 2015', null, null, null, null, null);
+  ${asUser(VERIFIER)}
+  select public.review_collateral(${COLLATERAL_OF_APP}, 'verify', 'Valuation report matches the market');
+  reset role;
+  update public.loan_applications set status = 'closed' where id = '${APP}';
+  ${asUser(VERIFIER)}
+  select public.release_collateral(${COLLATERAL_OF_APP}, 'Loan settled in full; title returned');
+  reset role;
+  select documents_retain_until = current_date + 90 as retained_for_ninety_days
+    from public.collateral_records where application_id = '${APP}';
+  rollback;`);
+check(
+  "release starts a 90-day document retention window",
+  retentionWindow.ok && row(retentionWindow).retained_for_ninety_days === true,
+  retentionWindow.error ?? JSON.stringify(row(retentionWindow)),
+);
+
+const purgeGuard = await sql(`begin; ${setup}
+  ${asUser(A)}
+  select * from public.purge_released_collateral_documents(10);
+  rollback;`);
+check(
+  "a customer cannot run the retention purge",
+  !purgeGuard.ok && /42501/.test(purgeGuard.error ?? ""),
+  purgeGuard.error ?? "",
+);
+
+const purge = await sql(`begin; ${setup}
+  ${asUser(A)}
+  select public.submit_collateral('${APP}', 'vehicle', 'Toyota Corolla 2015', null, null, null, null, null);
+  ${asUser(VERIFIER)}
+  select public.review_collateral(${COLLATERAL_OF_APP}, 'verify', 'Valuation report matches the market');
+  reset role;
+  update public.loan_applications set status = 'closed' where id = '${APP}';
+  ${asUser(VERIFIER)}
+  select public.release_collateral(${COLLATERAL_OF_APP}, 'Loan settled in full; title returned');
+  reset role;
+
+  update public.collateral_records set documents_retain_until = current_date - 1
+   where application_id = '${APP}';
+  insert into public.collateral_documents (collateral_id, document_type, storage_path)
+  select id, 'Vehicle licence', 'collateral/${A}/' || id::text || '/due.pdf'
+    from public.collateral_records where application_id = '${APP}';
+
+  insert into public.collateral_records (application_id, user_id, category, description)
+  values ('${APP}', '${A}', 'other', 'Still-held asset');
+  insert into public.collateral_documents (collateral_id, document_type, storage_path)
+  select id, 'Receipt', 'collateral/${A}/' || id::text || '/kept.pdf'
+    from public.collateral_records where description = 'Still-held asset';
+
+  create temp table _purge_result on commit drop as
+    select count(*)::int as purged from public.purge_released_collateral_documents(10);
+
+  select (select purged from _purge_result) as purged,
+         (select count(*)::int
+            from public.collateral_documents d
+            join public.collateral_records c on c.id = d.collateral_id
+           where c.application_id = '${APP}') as remaining;
+  rollback;`);
+check(
+  "retention purge deletes only evidence whose window elapsed",
+  purge.ok && Number(row(purge).purged) === 1,
+  purge.error ?? JSON.stringify(row(purge)),
+);
+check(
+  "a still-held asset keeps its evidence",
+  purge.ok && Number(row(purge).remaining) === 1,
+  purge.error ?? JSON.stringify(row(purge)),
+);
+
 const passed = results.filter(Boolean).length;
 console.log(`\n${passed}/${results.length} passed.`);
 process.exitCode = passed === results.length ? 0 : 1;

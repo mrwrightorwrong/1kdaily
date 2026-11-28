@@ -41,7 +41,7 @@ export const PRIMARY_NAV: readonly NavItem[] = [
   { label: "My Loans", href: "/app/loans", icon: HandCoins, phase: 7 },
   { label: "Repayments", href: "/app/repayments", icon: Receipt, phase: 7 },
   { label: "Transactions", href: "/app/transactions", icon: ArrowLeftRight, phase: 4 },
-  { label: "Notifications", href: "/app/notifications", icon: Bell, phase: 11 },
+  { label: "Notifications", href: "/app/notifications", icon: Bell, phase: 8 },
   { label: "Profile", href: "/app/profile", icon: User, phase: 2 },
   { label: "Security", href: "/app/security", icon: Shield, phase: 2 },
   { label: "Help & Support", href: "/app/support", icon: LifeBuoy, phase: 11 },
